@@ -1,0 +1,43 @@
+mutation MarkPledgeConfirmed($campaignSlug: String!, $pledgeId: String!) {
+  DefiUnited_markPledgeConfirmed(campaignSlug: $campaignSlug, pledgeId: $pledgeId) {
+    success
+    operatorAddress
+    error
+  }
+}
+
+mutation CancelPledge($campaignSlug: String!, $pledgeId: String!, $reason: String) {
+  DefiUnited_cancelPledge(
+    campaignSlug: $campaignSlug
+    pledgeId: $pledgeId
+    reason: $reason
+  ) {
+    success
+    operatorAddress
+    error
+  }
+}
+
+mutation ResolveDependency($campaignSlug: String!, $dependencyId: String!) {
+  DefiUnited_resolveDependency(campaignSlug: $campaignSlug, dependencyId: $dependencyId) {
+    success
+    operatorAddress
+    error
+  }
+}
+
+mutation PublishStatusUpdate(
+  $campaignSlug: String!
+  $updateId: String!
+  $publishedAt: String!
+) {
+  DefiUnited_publishStatusUpdate(
+    campaignSlug: $campaignSlug
+    updateId: $updateId
+    publishedAt: $publishedAt
+  ) {
+    success
+    operatorAddress
+    error
+  }
+}

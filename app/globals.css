@@ -1,0 +1,80 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-bg: #f7f8fb;
+  --color-surface: #ffffff;
+  --color-ink: #0a0e1a;
+  --color-ink-muted: #4a5568;
+  --color-ink-soft: #6b7280;
+  --color-border: #e5e7eb;
+  --color-border-soft: #eef0f4;
+  --color-brand: #2742f5;
+  --color-brand-soft: #eaeefe;
+  --color-success: #16a34a;
+  --color-success-soft: #dcfce7;
+  --color-warning: #d97706;
+  --color-warning-soft: #fef3c7;
+  --color-danger: #dc2626;
+  --color-info: #0ea5e9;
+  --color-info-soft: #e0f2fe;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas',
+    'Liberation Mono', 'Courier New', monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+  font-family: var(--font-sans);
+}
+
+/* subtle background grid */
+body {
+  background-image:
+    radial-gradient(1100px 480px at 80% -10%, #eaeefe 0%, transparent 60%),
+    radial-gradient(900px 400px at -10% 10%, #f1eafe 0%, transparent 60%);
+}
+
+@keyframes pulseRing {
+  0% {
+    box-shadow: 0 0 0 0 rgb(39 66 245 / 0.45);
+  }
+  60% {
+    box-shadow: 0 0 0 16px rgb(39 66 245 / 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgb(39 66 245 / 0);
+  }
+}
+
+.pulse-ring {
+  animation: pulseRing 1.6s ease-out;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: -400px 0;
+  }
+  to {
+    background-position: 400px 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgb(229 231 235 / 0.6) 0%,
+    rgb(229 231 235 / 1) 40%,
+    rgb(229 231 235 / 0.6) 80%
+  );
+  background-size: 800px 100%;
+  animation: shimmer 1.4s linear infinite;
+}

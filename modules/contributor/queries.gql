@@ -1,0 +1,30 @@
+query GetContributor($id: String!) {
+  DefiUnited_contributor(id: $id) {
+    id
+    displayName
+    kind
+    websiteUrl
+    twitterHandle
+    farcasterHandle
+    trustLevel
+    campaignParticipation {
+      campaignSlug
+      campaignName
+      pledgedAmount
+      receivedAmount
+      pledgeStatus
+      assetSymbol
+    }
+  }
+}
+
+query ListContributors($trustLevel: String, $kind: String) {
+  DefiUnited_contributors(trustLevel: $trustLevel, kind: $kind) {
+    id
+    displayName
+    kind
+    trustLevel
+    websiteUrl
+    twitterHandle
+  }
+}

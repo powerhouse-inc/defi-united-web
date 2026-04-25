@@ -1,0 +1,13 @@
+node_modules
+.next
+.turbo
+dist
+.env*.local
+.DS_Store
+*.log
+.pnpm-store
+.next/**
+.vercel
+modules/__generated__/graphql/gql-generated.ts
+playwright-report
+test-results
