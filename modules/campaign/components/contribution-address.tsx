@@ -8,7 +8,8 @@ import type { CampaignDetail } from '@/modules/campaign/queries'
 import { Badge } from '@/modules/shared/components/badge'
 import { shortenAddress } from '@/modules/shared/lib/format'
 import { useTheme } from '@/modules/shared/providers/theme-provider'
-import { ExternalLink, QrCode, ShieldCheck, Zap } from 'lucide-react'
+import { Activity, ExternalLink, QrCode, ShieldCheck, Users, Zap } from 'lucide-react'
+import { AnimatedNumber } from '@/modules/shared/components/animated-number'
 
 const CHAIN_LABELS: Record<number, string> = {
   1: 'Ethereum',
@@ -19,11 +20,11 @@ const CHAIN_LABELS: Record<number, string> = {
 }
 
 export function ContributionAddressCard({
-  addresses,
+  campaign,
 }: {
-  addresses: CampaignDetail['contributionAddresses']
+  campaign: CampaignDetail
 }) {
-  const primary = addresses[0]
+  const primary = campaign.contributionAddresses[0]
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
   const [theme] = useTheme()
 
@@ -64,6 +65,20 @@ export function ContributionAddressCard({
   const explorerUrl = `https://etherscan.io/address/${primary.address}`
   const txsUrl = `${explorerUrl}#transactions`
   const chainLabel = CHAIN_LABELS[primary.chainId] ?? `Chain ${primary.chainId}`
+
+  // Live on-chain stats — sourced from the public-campaign overlay so
+  // the contribute card surfaces what's actually in the treasury right
+  // now alongside the address operators are about to send to.
+  const liveTotal = Number(campaign.onchainLiveBalance?.totalEthEquivalent ?? 0)
+  const ethPriceUsd = Number(campaign.onchainLiveBalance?.ethPriceUsd ?? 0)
+  const usdEquiv = liveTotal * ethPriceUsd
+  const receipts = (campaign.recentReceipts ?? []).filter(
+    (r) => r.reconciliationStatus !== 'REORGED',
+  )
+  const txCount = receipts.length
+  const uniqueWallets = new Set(
+    receipts.map((r) => r.fromAddress?.toLowerCase()).filter(Boolean),
+  ).size
 
   return (
     <Card variant="accent">
@@ -138,6 +153,100 @@ export function ContributionAddressCard({
                 </span>
               </div>
             </div>
+
+            {/* Live treasury snapshot */}
+            {liveTotal > 0 ? (
+              <div
+                className="relative overflow-hidden rounded-xl border border-[--color-brand-border] px-4 py-3"
+                style={{
+                  background:
+                    'linear-gradient(135deg, rgba(142,92,255,0.08), rgba(230,62,157,0.05))',
+                }}
+              >
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 opacity-50"
+                  style={{
+                    background:
+                      'radial-gradient(500px 140px at 100% 0%, rgba(91,194,231,0.12), transparent 60%)',
+                  }}
+                />
+                <div className="relative grid grid-cols-3 items-center gap-3">
+                  <div>
+                    <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-[--color-ink-soft]">
+                      <span className="relative flex size-1.5">
+                        <span
+                          className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-70"
+                          style={{ background: 'var(--color-success)' }}
+                        />
+                        <span
+                          className="relative inline-flex size-1.5 rounded-full"
+                          style={{ background: 'var(--color-success)' }}
+                        />
+                      </span>
+                      Treasury · live
+                    </div>
+                    <div className="mt-1 flex items-baseline gap-1">
+                      <AnimatedNumber
+                        value={liveTotal}
+                        decimals={liveTotal >= 100 ? 2 : 4}
+                        durationMs={800}
+                        className="font-mono text-xl font-bold tabular-nums tracking-tight text-[--color-ink]"
+                      />
+                      <span className="text-[10px] font-medium text-[--color-ink-soft]">
+                        ETH
+                      </span>
+                    </div>
+                    {usdEquiv > 0 ? (
+                      <div className="text-[10px] font-mono tabular-nums text-[--color-ink-soft]">
+                        ≈ ${' '}
+                        <AnimatedNumber
+                          value={usdEquiv}
+                          decimals={0}
+                          durationMs={800}
+                          format={(n) => n.toLocaleString('en-US')}
+                          className="font-mono"
+                        />
+                      </div>
+                    ) : null}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-[--color-ink-soft]">
+                      <Activity className="size-2.5" />
+                      Inbound
+                    </div>
+                    <div className="mt-1 flex items-baseline gap-1">
+                      <AnimatedNumber
+                        value={txCount}
+                        decimals={0}
+                        durationMs={600}
+                        className="font-mono text-xl font-bold tabular-nums tracking-tight text-[--color-ink]"
+                      />
+                      <span className="text-[10px] font-medium text-[--color-ink-soft]">
+                        txs
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-[--color-ink-soft]">
+                      <Users className="size-2.5" />
+                      Senders
+                    </div>
+                    <div className="mt-1 flex items-baseline gap-1">
+                      <AnimatedNumber
+                        value={uniqueWallets}
+                        decimals={0}
+                        durationMs={600}
+                        className="font-mono text-xl font-bold tabular-nums tracking-tight text-[--color-ink]"
+                      />
+                      <span className="text-[10px] font-medium text-[--color-ink-soft]">
+                        wallets
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : null}
 
             {/* Trust signals */}
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">

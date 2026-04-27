@@ -7,13 +7,11 @@ import { CampaignHero } from './hero'
 import { ContributionAddressCard } from './contribution-address'
 import { ContributorsTable } from './contributors-table'
 import { ContractView } from './contract-view'
-import { ProgressSection } from './progress-section'
 import { DependencyGrid } from './dependency-grid'
 import { StatusTimeline } from './timeline'
 import { EmbedSnippet } from './embed-snippet'
 import { Faq } from './faq'
 import { LiveTicker } from './live-ticker'
-import { TreasuryGlance } from './treasury-glance'
 import { Reveal } from '@/modules/shared/components/reveal'
 
 /**
@@ -41,11 +39,11 @@ export function CampaignPage({ initial }: { initial: CampaignDetail }) {
 
   return (
     <div className="flex w-full flex-col gap-0">
-      <CampaignHero slug={c.slug} initial={c} />
-
-      <TreasuryGlance campaign={c} />
-
+      {/* Live ticker sits directly under the site header so the marquee
+          stays visible no matter where you are on the page. */}
       <LiveTicker campaign={c} />
+
+      <CampaignHero slug={c.slug} initial={c} />
 
       <div className="mx-auto w-full max-w-6xl flex flex-col gap-6 px-4 py-6 sm:gap-8 sm:px-6 sm:py-10">
         <ContractView campaign={c} />
@@ -55,18 +53,9 @@ export function CampaignPage({ initial }: { initial: CampaignDetail }) {
             id="contribute"
             className="flex flex-col gap-6 scroll-mt-24"
           >
-            <ContributionAddressCard addresses={c.contributionAddresses} />
+            <ContributionAddressCard campaign={c} />
             <ContributorsTable contributors={c.contributorsPublic} />
           </div>
-        </Reveal>
-
-        <Reveal delay={0.05}>
-          <ProgressSection
-            totalPledged={c.totalPledged}
-            totalReceived={c.totalReceived}
-            targetAmount={c.targetAmount}
-            pledgeCount={c.pledgeCount}
-          />
         </Reveal>
 
         <Reveal delay={0.1}>
