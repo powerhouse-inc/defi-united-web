@@ -66,9 +66,24 @@ function buildEntries(campaign: CampaignDetail): TickerEntry[] {
     })
   }
 
-  // Real on-chain receipts indexed by the processor → "transaction" rows.
-  // Skip REORGED ones so they don't pollute the feed.
-  const receipts = campaign.recentReceipts ?? []
+  // Real on-chain transfers from Alchemy ∪ indexed receipts. Use the
+  // on-chain feed first (always real, no doc dependency), then layer
+  // any reconciled receipts on top — receipt entries have richer
+  // status (MATCHED, etc.) so they win on tx-hash collision.
+  const seenTx = new Set<string>()
+  const receipts: typeof campaign.recentReceipts = []
+  for (const r of campaign.recentOnchainTransfers ?? []) {
+    if (r.txHash && !seenTx.has(r.txHash.toLowerCase())) {
+      seenTx.add(r.txHash.toLowerCase())
+      receipts.push(r)
+    }
+  }
+  for (const r of campaign.recentReceipts ?? []) {
+    if (r.txHash && !seenTx.has(r.txHash.toLowerCase())) {
+      seenTx.add(r.txHash.toLowerCase())
+      receipts.push(r)
+    }
+  }
   for (const r of receipts) {
     if (r.reconciliationStatus === 'REORGED') continue
     const ts = r.blockTimestamp

@@ -83,6 +83,21 @@ export const GET_CAMPAIGN = gql`
         reconciliationStatus
         matchedPledgeId
       }
+      recentOnchainTransfers(limit: 25) {
+        id
+        txHash
+        blockNumber
+        blockTimestamp
+        fromAddress
+        toAddress
+        assetSymbol
+        assetContractAddress
+        amount
+        ethEquivalentAmount
+        ethPriceUsdAtReceipt
+        reconciliationStatus
+        matchedPledgeId
+      }
       onchainLiveBalance {
         totalEthEquivalent
         ethPriceUsd
