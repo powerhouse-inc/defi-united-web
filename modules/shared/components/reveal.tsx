@@ -1,20 +1,30 @@
 'use client'
 
-import { type ReactNode } from 'react'
+import { type ReactNode, useMemo } from 'react'
 import { motion } from 'framer-motion'
+
+// Default fast path — built once at module scope so it never re-creates
+// on render. CRITICAL: motion.create() returns a fresh React component
+// each call; calling it inside Reveal's body remounted the entire subtree
+// every render, replaying the entrance animation on every poll cycle and
+// making live updates look like a full page refresh.
+const MotionDiv = motion.create('div')
 
 export function Reveal({
   children,
   delay = 0,
   viewOnce = true,
-  as: as = 'div',
+  as,
 }: {
   children: ReactNode
   delay?: number
   viewOnce?: boolean
   as?: React.ElementType
 }) {
-  const Motion = motion.create(as)
+  const Motion = useMemo(
+    () => (as ? motion.create(as) : MotionDiv),
+    [as],
+  )
   return (
     <Motion
       initial={{ opacity: 0, y: 20 }}

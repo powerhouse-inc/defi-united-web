@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo } from 'react'
 import { useCampaign } from '@/modules/campaign/use-campaign'
 import type { CampaignDetail } from '@/modules/campaign/queries'
 import { CampaignHero } from './hero'
@@ -26,16 +27,16 @@ export function CampaignPage({ initial }: { initial: CampaignDetail }) {
   })
   const raw = data ?? initial
   // Layer the on-chain live overlay on top of the document-derived total so
-  // every downstream section (hero, thermometer, progress, contract view,
-  // FAQ, etc.) shows the same number — receipts that the processor has
-  // recorded + pending value the live overlay can see in the treasury.
-  const docReceived = Number(raw.totalReceived) || 0
-  const pending = Number(raw.pendingReceiptsEthEquivalent ?? 0) || 0
-  const layered = docReceived + pending
-  const c: CampaignDetail = {
-    ...raw,
-    totalReceived: String(layered),
-  }
+  // every downstream section shows the same number. Memoize the augmented
+  // object so its identity is stable when the underlying values haven't
+  // changed — otherwise every poll cycle would create a fresh reference and
+  // ripple a re-render through every consumer.
+  const c = useMemo<CampaignDetail>(() => {
+    const docReceived = Number(raw.totalReceived) || 0
+    const pending = Number(raw.pendingReceiptsEthEquivalent ?? 0) || 0
+    const layered = docReceived + pending
+    return { ...raw, totalReceived: String(layered) }
+  }, [raw])
 
   return (
     <div className="flex w-full flex-col gap-0">
