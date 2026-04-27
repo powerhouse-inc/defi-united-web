@@ -1,6 +1,7 @@
 import { Card, CardBody, CardHeader } from '@/modules/shared/components/card'
+import { EmptyState } from '@/modules/shared/components/empty-state'
 import { formatDateTime } from '@/modules/shared/lib/format'
-import { ExternalLink } from 'lucide-react'
+import { ExternalLink, MessageSquare } from 'lucide-react'
 import type { CampaignDetail } from '@/modules/campaign/queries'
 
 export function StatusTimeline({
@@ -13,10 +14,11 @@ export function StatusTimeline({
       <Card>
         <CardHeader title="Status updates" />
         <CardBody>
-          <p className="text-sm text-[--color-ink-soft]">
-            No published updates yet. Operators will publish status updates here as
-            governance votes settle and funds land.
-          </p>
+          <EmptyState
+            icon={MessageSquare}
+            title="First update will appear here"
+            description="Operators publish status updates as governance votes settle and funds land on-chain. This feed stays silent until there's something to report."
+          />
         </CardBody>
       </Card>
     )

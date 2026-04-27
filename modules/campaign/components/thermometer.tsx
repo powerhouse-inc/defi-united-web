@@ -3,12 +3,11 @@
 import { motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 import { cn } from '@/modules/shared/lib/cn'
-import { formatEthAmount } from '@/modules/shared/lib/format'
 
 /**
- * Live thermometer component. Shows pledged total advancing toward target
- * with a separate "received" overlay. Pulses on `lastUpdateAt` change so
- * the page feels alive between polls.
+ * Slim progress bar visualization. The hero already prints Pledged / Received
+ * / Target in BigStat cards above — this component is just the bar with a
+ * tiny legend, so the page doesn't repeat numbers.
  */
 export function Thermometer({
   totalPledged,
@@ -38,68 +37,48 @@ export function Thermometer({
 
   return (
     <div className="space-y-3">
-      <div className="flex items-baseline justify-between gap-4">
-        <div>
-          <div className="text-xs uppercase tracking-wider text-[--color-ink-soft]">
-            Pledged
-          </div>
-          <div
-            key={`pledged-${pulseKey}`}
-            className="flex items-baseline gap-2 text-4xl font-semibold tabular-nums sm:text-5xl"
-          >
-            <motion.span
-              initial={{ opacity: 0.4, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              {formatEthAmount(totalPledged)}
-            </motion.span>
-            <span className="text-sm font-medium text-[--color-ink-soft]">ETH</span>
-          </div>
-        </div>
-        <div className="text-right">
-          <div className="text-xs uppercase tracking-wider text-[--color-ink-soft]">
-            Target
-          </div>
-          <div className="text-xl font-semibold tabular-nums">
-            {formatEthAmount(targetAmount)}{' '}
-            <span className="text-sm font-medium text-[--color-ink-soft]">ETH</span>
-          </div>
+      <div className="relative">
+        <div className="relative h-3 overflow-hidden rounded-full bg-[--color-border-soft]">
+          <motion.div
+            key={`bar-${pulseKey}`}
+            className={cn(
+              'absolute inset-y-0 left-0 rounded-full pulse-ring',
+            )}
+            style={{
+              background:
+                'linear-gradient(90deg, #8e5cff 0%, #e63e9d 100%)',
+            }}
+            initial={{ width: 0 }}
+            animate={{ width: `${pledgedPct}%` }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+          />
+          <motion.div
+            className="absolute inset-y-0 left-0 rounded-full"
+            style={{
+              background: 'rgba(54, 211, 153, 0.6)',
+              boxShadow: '0 0 12px rgba(54, 211, 153, 0.5)',
+            }}
+            initial={{ width: 0 }}
+            animate={{ width: `${receivedPct}%` }}
+            transition={{ duration: 0.8, ease: 'easeOut', delay: 0.1 }}
+          />
         </div>
       </div>
 
-      <div className="relative h-3 overflow-hidden rounded-full bg-[--color-border-soft]">
-        <motion.div
-          key={`bar-${pulseKey}`}
-          className={cn(
-            'absolute inset-y-0 left-0 rounded-full bg-[--color-brand]',
-            'pulse-ring',
-          )}
-          initial={{ width: 0 }}
-          animate={{ width: `${pledgedPct}%` }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
-        />
-        <motion.div
-          className="absolute inset-y-0 left-0 rounded-full bg-[--color-success]"
-          initial={{ width: 0 }}
-          animate={{ width: `${receivedPct}%` }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
-        />
-      </div>
-
-      <div className="flex items-center justify-between text-xs text-[--color-ink-soft]">
-        <div className="flex items-center gap-3">
-          <span className="inline-flex items-center gap-1.5">
-            <span className="size-2 rounded-full bg-[--color-brand]" /> Pledged{' '}
-            {pledgedPct.toFixed(1)}%
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <span className="size-2 rounded-full bg-[--color-success]" /> Received{' '}
-            {receivedPct.toFixed(2)}%
-          </span>
-        </div>
-        <span className="tabular-nums">
-          {formatEthAmount(totalReceived)} / {formatEthAmount(targetAmount)} ETH
+      <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] uppercase tracking-[0.16em] text-[--color-ink-soft]">
+        <span className="inline-flex items-center gap-1.5">
+          <span
+            className="size-2 rounded-full"
+            style={{
+              background:
+                'linear-gradient(90deg, #8e5cff 0%, #e63e9d 100%)',
+            }}
+          />
+          Pledged
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <span className="size-2 rounded-full" style={{ background: 'var(--color-success)', opacity: 0.85 }} />
+          Received
         </span>
       </div>
     </div>

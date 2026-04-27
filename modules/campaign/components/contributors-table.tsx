@@ -1,5 +1,13 @@
-import { ExternalLink } from 'lucide-react'
+'use client'
+
+import Link from 'next/link'
+import { ExternalLink, Handshake, Clock } from 'lucide-react'
+
+import { motion } from 'framer-motion'
+import { Avatar } from '@/modules/shared/components/avatar'
 import { Card, CardBody, CardHeader } from '@/modules/shared/components/card'
+import { EmptyState } from '@/modules/shared/components/empty-state'
+import { PLEDGE_ROW_VARIANTS } from '@/modules/shared/components/reveal'
 import type { CampaignDetail } from '@/modules/campaign/queries'
 import { PledgeStatusBadge } from './status-badge'
 import { Badge } from '@/modules/shared/components/badge'
@@ -30,7 +38,7 @@ function PlatformBadge({
       href={url}
       target="_blank"
       rel="noreferrer"
-      className="inline-flex items-center gap-1 rounded-md bg-[--color-warning-soft] px-1.5 py-0.5 text-[11px] font-medium text-[--color-warning] hover:underline"
+      className="inline-flex items-center gap-1 rounded-md border border-[--color-warning-border] bg-[--color-warning-soft] px-1.5 py-0.5 text-[10px] font-medium text-[--color-warning] hover:underline"
     >
       {label}
       <ExternalLink className="size-3" />
@@ -38,19 +46,43 @@ function PlatformBadge({
   )
 }
 
-function PledgeRow({ pledge }: { pledge: Pledge }) {
+function slugify(name: string) {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+}
+
+function PledgeRow({ pledge, index }: { pledge: Pledge; index: number }) {
+  const slug = slugify(pledge.contributorDisplayName)
   return (
-    <li className="flex items-start justify-between gap-3 px-5 py-3">
+    <motion.li
+      className="flex items-start justify-between gap-3 px-5 py-3.5 transition-colors hover:bg-[--color-brand-soft]/40"
+      variants={PLEDGE_ROW_VARIANTS}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.1 }}
+      custom={index}
+    >
       <div className="min-w-0">
         <div className="flex items-center gap-2">
-          <span className="truncate text-sm font-medium">
+          <Avatar
+            name={pledge.contributorDisplayName}
+            websiteUrl={pledge.contributorWebsiteUrl}
+          />
+          <Link
+            href={`/contributors/${slug}`}
+            className="truncate text-sm font-semibold tracking-tight text-[--color-ink] hover:text-[--color-brand-glow] hover:underline"
+          >
             {pledge.contributorDisplayName}
-          </span>
+          </Link>
           {pledge.contributorTrustLevel === 'VERIFIED' ? (
-            <Badge tone="success">Verified</Badge>
+            <span title="Verified contributor" className="text-[--color-success]">
+              <svg className="size-3.5" viewBox="0 0 12 12" fill="none">
+                <path d="M6 0L7.5 1.5L9.5 1L10 3L11.5 4L11 6L11.5 8L9.5 9L9.5 11L7.5 10.5L6 12L4.5 10.5L2.5 11L2.5 9L0.5 8L1 6L0.5 4L2.5 3L2.5 1L4.5 1.5L6 0Z" fill="currentColor" opacity="0.3"/>
+                <path d="M3.5 6L5 7.5L8.5 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </span>
           ) : null}
         </div>
-        <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-[--color-ink-soft]">
+        <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-[--color-ink-soft]">
           <PledgeStatusBadge status={pledge.status} />
           <PlatformBadge
             url={pledge.governanceProposalUrl}
@@ -61,37 +93,48 @@ function PledgeRow({ pledge }: { pledge: Pledge }) {
               href={pledge.contributorWebsiteUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1 text-[11px] text-[--color-ink-soft] hover:underline"
+              className="inline-flex items-center gap-1 text-[11px] text-[--color-ink-soft] hover:text-[--color-ink-muted] hover:underline"
             >
               site <ExternalLink className="size-3" />
             </a>
           ) : null}
           {pledge.contributorTwitter ? (
             <a
-              href={`https://x.com/${pledge.contributorTwitter}`}
+              href={`https://x.com/${pledge.contributorTwitter.replace(/^@/, '')}`}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1 text-[11px] text-[--color-ink-soft] hover:underline"
+              className="inline-flex items-center gap-1 text-[11px] text-[--color-ink-soft] hover:text-[--color-ink-muted] hover:underline"
             >
-              @{pledge.contributorTwitter}
+              @{pledge.contributorTwitter.replace(/^@/, '')}
             </a>
           ) : null}
         </div>
-      </div>
-      <div className="text-right tabular-nums">
-        <div className="text-sm font-semibold">
-          {formatEthAmount(pledge.pledgedAmount)}{' '}
-          <span className="text-xs font-normal text-[--color-ink-soft]">
-            {pledge.assetSymbol}
-          </span>
-        </div>
-        {pledge.receivedAmount && Number(pledge.receivedAmount) > 0 ? (
-          <div className="text-xs text-[--color-success]">
-            recv {formatEthAmount(pledge.receivedAmount)}
+        {pledge.publicNotes ? (
+          <div className="mt-1 text-[11px] italic text-[--color-ink-soft]">
+            {pledge.publicNotes}
           </div>
         ) : null}
       </div>
-    </li>
+      <div className="text-right">
+        {Number(pledge.pledgedAmount) > 0 ? (
+          <div className="font-mono text-base font-bold tabular-nums tracking-tight text-[--color-ink]">
+            {formatEthAmount(pledge.pledgedAmount)}
+            <span className="ml-1 text-[10px] font-medium text-[--color-ink-soft]">
+              {pledge.assetSymbol}
+            </span>
+          </div>
+        ) : (
+          <div className="font-mono text-xs font-semibold uppercase tracking-wider text-[--color-ink-soft]">
+            TBD
+          </div>
+        )}
+        {pledge.receivedAmount && Number(pledge.receivedAmount) > 0 ? (
+          <div className="mt-0.5 font-mono text-[11px] tabular-nums text-[--color-success]">
+            ↓ {formatEthAmount(pledge.receivedAmount)} received
+          </div>
+        ) : null}
+      </div>
+    </motion.li>
   )
 }
 
@@ -108,21 +151,24 @@ export function ContributorsTable({
   const pending = sorted.filter((p) => PENDING_STATUSES.includes(p.status))
 
   return (
-    <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+    <div className="flex flex-col gap-5">
       <Card>
         <CardHeader
-          title="Confirmed"
-          description="Individuals or entities that have committed without further governance steps."
-          right={<Badge tone="info">{confirmed.length}</Badge>}
+          title="Key contributors"
+          description="Direct commitments and on-chain receipts — no further governance step needed."
+          right={<Badge tone="success">{confirmed.length}</Badge>}
         />
         {confirmed.length === 0 ? (
           <CardBody>
-            <p className="text-sm text-[--color-ink-soft]">No confirmed pledges yet.</p>
+            <EmptyState
+              icon={Handshake}
+              title="Waiting for first confirmed pledge"
+            />
           </CardBody>
         ) : (
           <ul className="divide-y divide-[--color-border-soft]">
             {confirmed.map((p, i) => (
-              <PledgeRow key={`${p.contributorDisplayName}-${i}`} pledge={p} />
+              <PledgeRow key={`${p.contributorDisplayName}-${i}`} pledge={p} index={i} />
             ))}
           </ul>
         )}
@@ -130,18 +176,21 @@ export function ContributorsTable({
 
       <Card>
         <CardHeader
-          title="Pending governance"
-          description="Pledges awaiting on-chain or off-chain DAO ratification."
+          title="Awaiting ratification"
+          description="DAO pledges pending on-chain or off-chain governance."
           right={<Badge tone="warning">{pending.length}</Badge>}
         />
         {pending.length === 0 ? (
           <CardBody>
-            <p className="text-sm text-[--color-ink-soft]">No pending pledges.</p>
+            <EmptyState
+              icon={Clock}
+              title="All pledges have been ratified"
+            />
           </CardBody>
         ) : (
           <ul className="divide-y divide-[--color-border-soft]">
             {pending.map((p, i) => (
-              <PledgeRow key={`${p.contributorDisplayName}-${i}`} pledge={p} />
+              <PledgeRow key={`${p.contributorDisplayName}-${i}`} pledge={p} index={i} />
             ))}
           </ul>
         )}

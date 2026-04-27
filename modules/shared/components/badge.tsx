@@ -7,14 +7,22 @@ type Tone =
   | 'info'
   | 'danger'
   | 'brand'
+  | 'accent'
 
 const toneClass: Record<Tone, string> = {
-  neutral: 'bg-[--color-border-soft] text-[--color-ink-muted] border-[--color-border]',
-  success: 'bg-[--color-success-soft] text-[--color-success] border-green-200',
-  warning: 'bg-[--color-warning-soft] text-[--color-warning] border-amber-200',
-  info: 'bg-[--color-info-soft] text-[--color-info] border-sky-200',
-  danger: 'bg-red-50 text-[--color-danger] border-red-200',
-  brand: 'bg-[--color-brand-soft] text-[--color-brand] border-indigo-200',
+  neutral:
+    'bg-[--color-border-soft] text-[--color-ink-muted] border-[--color-border]',
+  success:
+    'bg-[--color-success-soft] text-[--color-success] border-[--color-success-border]',
+  warning:
+    'bg-[--color-warning-soft] text-[--color-warning] border-[--color-warning-border]',
+  info: 'bg-[--color-info-soft] text-[--color-info] border-[--color-info-border]',
+  danger:
+    'bg-[--color-danger-soft] text-[--color-danger] border-[--color-danger-border]',
+  brand:
+    'bg-[--color-brand-soft] text-[--color-brand] border-[--color-brand-border]',
+  accent:
+    'bg-[--color-accent-soft] text-[--color-accent] border-[color:rgba(230,62,157,0.3)]',
 }
 
 export function Badge({
@@ -29,7 +37,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium',
+        'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium tracking-tight',
         toneClass[tone],
         className,
       )}

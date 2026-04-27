@@ -1,46 +1,52 @@
-import { fetchCampaign } from '@/modules/campaign/queries'
 import { OFFLINE_CAMPAIGN } from '@/modules/campaign/offline-fallback'
+import { fetchCampaign } from '@/modules/campaign/queries'
 import { DEFAULT_CAMPAIGN_SLUG } from '@/modules/shared/lib/graphql-client'
-import { CampaignHero } from '@/modules/campaign/components/hero'
-import { ContributionAddressCard } from '@/modules/campaign/components/contribution-address'
-import { ContributorsTable } from '@/modules/campaign/components/contributors-table'
-import { DependencyGrid } from '@/modules/campaign/components/dependency-grid'
-import { EmbedSnippet } from '@/modules/campaign/components/embed-snippet'
-import { Faq } from '@/modules/campaign/components/faq'
+import { CampaignPage } from '@/modules/campaign/components/campaign-page'
 
-export const revalidate = 0
+// Render at request time so each page load fetches fresh data.
 export const dynamic = 'force-dynamic'
-
-async function loadCampaign() {
-  try {
-    const c = await fetchCampaign(DEFAULT_CAMPAIGN_SLUG)
-    return c ?? OFFLINE_CAMPAIGN
-  } catch {
-    return OFFLINE_CAMPAIGN
-  }
-}
+export const revalidate = 0
 
 export default async function Home() {
-  const campaign = await loadCampaign()
+  // Try fresh GraphQL fetch; fall back to offline snapshot if unreachable.
+  let campaign
+  try {
+    campaign = (await fetchCampaign(DEFAULT_CAMPAIGN_SLUG)) ?? OFFLINE_CAMPAIGN
+  } catch {
+    campaign = OFFLINE_CAMPAIGN
+  }
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FundraisingEvent',
+    name: campaign.name,
+    description: campaign.summary,
+    eventStatus: campaign.status === 'ACTIVE' ? 'https://schema.org/EventScheduled' : 'https://schema.org/EventCanceled',
+    eventAttendanceMode: 'https://schema.org/OnlineEventAttendanceMode',
+    startDate: campaign.incidentDate,
+    location: {
+      '@type': 'VirtualLocation',
+      url: 'https://defiunited.xyz',
+    },
+    organizer: {
+      '@type': 'Organization',
+      name: 'DeFi United',
+      url: 'https://defiunited.xyz',
+    },
+    fundingGoal: {
+      '@type': 'MonetaryGrant',
+      amount: campaign.targetAmount,
+      unit: 'ETH',
+    },
+  }
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-10">
-      <CampaignHero slug={campaign.slug} initial={campaign} />
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_minmax(0,360px)]">
-        <ContributorsTable contributors={campaign.contributorsPublic} />
-        <ContributionAddressCard addresses={campaign.contributionAddresses} />
-      </div>
-
-      <DependencyGrid
-        dependencies={campaign.dependenciesPublic}
-        resolved={campaign.dependenciesResolved}
-        blocking={campaign.dependenciesBlocking}
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-
-      <EmbedSnippet />
-
-      <Faq riskDisclaimer={campaign.riskDisclaimer} />
-    </div>
+      <CampaignPage initial={campaign} />
+    </>
   )
 }

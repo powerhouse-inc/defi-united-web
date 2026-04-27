@@ -21,7 +21,13 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
+      testDir: './tests/desktop',
       use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'Mobile Chrome',
+      testDir: './tests/mobile',
+      use: { ...devices['Pixel 5'] },
     },
   ],
 })

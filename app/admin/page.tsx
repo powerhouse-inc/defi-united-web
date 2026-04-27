@@ -17,8 +17,6 @@ import {
 import { PledgeStatusBadge, DependencyStatusBadge } from '@/modules/campaign/components/status-badge'
 import { formatEthAmount } from '@/modules/shared/lib/format'
 
-const OPERATOR_WALLET = '0x0fCa5194baA59a362a835031d9C4A25970effE68'
-
 export default function AdminPage() {
   const status = useRenownAuth()
   const { data: campaign } = useCampaign(DEFAULT_CAMPAIGN_SLUG, {
@@ -95,9 +93,11 @@ export default function AdminPage() {
             </div>
             <div>
               <div className="text-xs uppercase tracking-wider text-[--color-ink-soft]">
-                Authorized operator wallet
+                Treasury address
               </div>
-              <code className="text-xs">{OPERATOR_WALLET}</code>
+              <code className="text-xs text-[--color-ink-muted]">
+                {c.contributionAddresses[0]?.address ?? 'Not yet published'}
+              </code>
             </div>
           </div>
           {status.kind === 'unavailable' ? (
@@ -147,7 +147,8 @@ export default function AdminPage() {
                       )
                     }
                     disabled={busyKey === confirmKey}
-                    className="rounded-lg bg-[--color-success] px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700 disabled:opacity-50"
+                    className="rounded-lg px-3 py-1.5 text-xs font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+                    style={{ backgroundColor: 'var(--color-success)' }}
                   >
                     {busyKey === confirmKey ? 'Marking…' : 'Mark confirmed'}
                   </button>
@@ -162,7 +163,7 @@ export default function AdminPage() {
                       )
                     }
                     disabled={busyKey === cancelKey}
-                    className="rounded-lg border border-[--color-border] bg-white px-3 py-1.5 text-xs font-medium text-[--color-ink-muted] hover:bg-[--color-border-soft] disabled:opacity-50"
+                    className="rounded-lg border border-[--color-border] bg-[--color-surface] px-3 py-1.5 text-xs font-medium text-[--color-ink-muted] transition-colors hover:border-[--color-danger-border] hover:text-[--color-danger] disabled:opacity-50"
                   >
                     Cancel
                   </button>
@@ -204,7 +205,8 @@ export default function AdminPage() {
                       )
                     }
                     disabled={busyKey === depKey || d.status === 'RESOLVED'}
-                    className="rounded-lg bg-[--color-brand] px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-600 disabled:opacity-50"
+                    className="rounded-lg px-3 py-1.5 text-xs font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+                    style={{ backgroundColor: 'var(--color-brand)' }}
                   >
                     {busyKey === depKey ? 'Resolving…' : 'Resolve'}
                   </button>

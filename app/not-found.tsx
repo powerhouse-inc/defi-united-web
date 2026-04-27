@@ -10,7 +10,8 @@ export default function NotFound() {
       </p>
       <Link
         href="/"
-        className="rounded-lg bg-[--color-brand] px-3 py-2 text-sm font-medium text-white"
+        className="rounded-lg px-3 py-2 text-sm font-medium text-white"
+        style={{ background: 'linear-gradient(135deg, #8e5cff 0%, #e63e9d 100%)' }}
       >
         Back to the campaign
       </Link>

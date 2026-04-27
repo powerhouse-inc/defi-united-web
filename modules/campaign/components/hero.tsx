@@ -1,12 +1,35 @@
 'use client'
 
+import { useEffect, useRef, useState } from 'react'
+import { motion } from 'framer-motion'
 import { useCampaign } from '@/modules/campaign/use-campaign'
 import type { CampaignDetail } from '@/modules/campaign/queries'
 import { Thermometer } from './thermometer'
 import { CampaignStatusBadge } from './status-badge'
-import { Card } from '@/modules/shared/components/card'
-import { formatDateTime } from '@/modules/shared/lib/format'
-import { CircleDot } from 'lucide-react'
+import { ArrowRight, Radio } from 'lucide-react'
+import { useToast } from '@/modules/shared/components/toast'
+import { cn } from '@/modules/shared/lib/cn'
+import { AnimatedNumber } from '@/modules/shared/components/animated-number'
+
+const POLL_INTERVAL = 5000
+
+function RefreshCountdown() {
+  const [seconds, setSeconds] = useState(POLL_INTERVAL / 1000)
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setSeconds((s) => (s <= 1 ? POLL_INTERVAL / 1000 : s - 1))
+    }, 1000)
+    return () => clearInterval(id)
+  }, [])
+
+  return (
+    <span className="font-mono tabular-nums">
+      <span className="text-[--color-ink-soft]">poll</span>{' '}
+      <span className="text-[--color-ink-muted]">{seconds}s</span>
+    </span>
+  )
+}
 
 export function CampaignHero({
   slug,
@@ -15,82 +38,310 @@ export function CampaignHero({
   slug: string
   initial: CampaignDetail
 }) {
-  const { data, isFetching } = useCampaign(slug, { initialData: initial })
+  const { data, isFetching } = useCampaign(slug, {
+    initialData: initial,
+    pollMs: POLL_INTERVAL,
+  })
   const c = data ?? initial
+  const { toast } = useToast()
+  const prevReceived = useRef(c.totalReceived)
+
+  useEffect(() => {
+    const current = Number(c.totalReceived) || 0
+    const previous = Number(prevReceived.current) || 0
+    if (current > previous && prevReceived.current !== undefined) {
+      const diff = current - previous
+      toast({
+        title: 'New receipt received',
+        message: `${diff >= 1 ? diff.toFixed(2) : diff.toFixed(4)} ETH arrived on-chain`,
+        type: 'success',
+        duration: 6000,
+      })
+    }
+    prevReceived.current = c.totalReceived
+  }, [c.totalReceived, toast])
+
+  const target = Number(c.targetAmount ?? 0) || 0
+  const pledged = Number(c.totalPledged) || 0
+  const received = Number(c.totalReceived) || 0
+  const pledgedPct = target > 0 ? Math.min((pledged / target) * 100, 100) : 0
+  const receivedPct = target > 0 ? Math.min((received / target) * 100, 100) : 0
+  const incidentDate = c.incidentDate
+    ? new Date(c.incidentDate).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      })
+    : null
 
   return (
-    <Card className="overflow-hidden">
-      <div className="grid grid-cols-1 gap-8 px-8 py-10 lg:grid-cols-[1fr_minmax(0,420px)]">
-        <div className="space-y-6">
-          <div className="flex items-center gap-2 text-xs text-[--color-ink-soft]">
-            <CampaignStatusBadge status={c.status} />
-            <span>·</span>
-            <span className="inline-flex items-center gap-1.5">
-              <CircleDot
-                className={`size-3 ${isFetching ? 'animate-pulse text-[--color-brand]' : 'text-[--color-success]'}`}
+    <section className="relative w-full overflow-hidden">
+      {/* Animated gradient mesh */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 mesh-drift"
+        style={{
+          background: `
+            radial-gradient(900px 480px at 75% -5%, rgba(142, 92, 255, 0.32) 0%, transparent 55%),
+            radial-gradient(700px 380px at 18% 12%, rgba(230, 62, 157, 0.22) 0%, transparent 55%),
+            radial-gradient(600px 320px at 50% 90%, rgba(91, 194, 231, 0.10) 0%, transparent 60%)
+          `,
+        }}
+      />
+      {/* Faint horizon line */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-px"
+        style={{
+          background:
+            'linear-gradient(90deg, transparent 0%, rgba(142, 92, 255, 0.5) 50%, transparent 100%)',
+        }}
+      />
+
+      <div className="relative mx-auto max-w-5xl px-4 pt-12 pb-12 sm:px-6 sm:pt-20 sm:pb-20">
+        {/* Status row */}
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="mb-8 flex flex-wrap items-center justify-center gap-3 text-xs"
+        >
+          <CampaignStatusBadge status={c.status} />
+          <span className="text-[--color-ink-soft]">·</span>
+          <span className="inline-flex items-center gap-1.5 text-[--color-ink-soft]">
+            <span className="relative flex size-2">
+              <span
+                className={cn(
+                  'absolute inline-flex h-full w-full rounded-full',
+                  isFetching ? 'animate-ping' : '',
+                )}
+                style={{
+                  background: isFetching
+                    ? 'var(--color-brand)'
+                    : 'var(--color-success)',
+                  opacity: 0.6,
+                }}
               />
-              live · refreshed every 5s
+              <span
+                className="relative inline-flex size-2 rounded-full"
+                style={{
+                  background: isFetching
+                    ? 'var(--color-brand)'
+                    : 'var(--color-success)',
+                }}
+              />
             </span>
-            {c.lastUpdateAt ? (
-              <>
-                <span>·</span>
-                <span>last activity {formatDateTime(c.lastUpdateAt)}</span>
-              </>
-            ) : null}
+            <span className="font-mono">live</span>
+            <RefreshCountdown />
+          </span>
+          {incidentDate ? (
+            <>
+              <span className="text-[--color-ink-soft]">·</span>
+              <span className="text-[--color-ink-soft]">
+                Incident{' '}
+                <span className="font-mono text-[--color-ink-muted]">{incidentDate}</span>
+              </span>
+            </>
+          ) : null}
+        </motion.div>
+
+        {/* Eyebrow — derived from campaign data */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+          className="mb-4 flex flex-wrap items-center justify-center gap-2"
+        >
+          <span className="inline-flex items-center gap-2 rounded-full border border-[--color-brand-border] bg-[--color-brand-soft] px-3 py-1 text-[11px] font-medium tracking-wider uppercase text-[--color-brand]">
+            <Radio className="size-3" />
+            DeFi United DAO
+          </span>
+          {c.affectedAsset?.symbol ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[--color-border] bg-[--color-bg-elevated]/60 px-3 py-1 text-[10px] font-medium uppercase tracking-wider text-[--color-ink-soft] backdrop-blur-sm">
+              Affected asset · {c.affectedAsset.symbol}
+            </span>
+          ) : null}
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[--color-border] bg-[--color-bg-elevated]/60 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-[--color-ink-soft] backdrop-blur-sm">
+            {c.slug}
+          </span>
+        </motion.div>
+
+        {/* Title */}
+        <motion.h1
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.15 }}
+          className="mx-auto mb-5 text-center text-5xl font-bold tracking-tight sm:text-6xl lg:text-7xl"
+          style={{ letterSpacing: '-0.04em' }}
+        >
+          <span className="gradient-text">{c.name}</span>
+        </motion.h1>
+
+        {/* Summary */}
+        {c.summary ? (
+          <motion.p
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="mx-auto mb-12 max-w-2xl text-balance text-center text-base text-[--color-ink-muted] sm:mb-16 sm:text-lg"
+          >
+            {c.summary}
+          </motion.p>
+        ) : null}
+
+        {/* The big numbers — Aave dashboard centerpiece */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.25 }}
+          className="mx-auto mb-10 max-w-4xl"
+        >
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-3">
+            <BigStat
+              label="Pledged"
+              valueNum={Number(c.totalPledged) || 0}
+              unit="ETH"
+              percent={pledgedPct}
+              tone="brand"
+              emphasis
+            />
+            <BigStat
+              label="Received"
+              valueNum={Number(c.totalReceived) || 0}
+              unit="ETH"
+              percent={receivedPct}
+              tone="success"
+            />
+            <BigStat
+              label="Target"
+              valueNum={Number(c.targetAmount) || 0}
+              unit="ETH"
+              sublabel={`${c.pledgeCount} contributors`}
+              tone="neutral"
+            />
           </div>
-          <div>
-            <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-              {c.name}
-            </h1>
-            {c.summary ? (
-              <p className="mt-3 max-w-2xl text-base text-[--color-ink-muted]">
-                {c.summary}
-              </p>
-            ) : null}
-          </div>
+        </motion.div>
+
+        {/* Compact thermometer */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="mx-auto max-w-3xl"
+        >
           <Thermometer
             totalPledged={c.totalPledged}
             totalReceived={c.totalReceived}
             targetAmount={c.targetAmount}
             lastUpdateAt={c.lastUpdateAt}
           />
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-2 gap-3 self-end">
-          <Stat label="Pledges" value={String(c.pledgeCount)} />
-          <Stat
-            label="Asset"
-            value={c.affectedAsset?.symbol ?? '—'}
-            sub={c.affectedAsset ? `chain ${c.affectedAsset.chainId}` : undefined}
-          />
-          <Stat
-            label="Dependencies cleared"
-            value={`${c.dependenciesResolved}`}
-            sub={`of ${c.dependenciesResolved + c.dependenciesBlocking}`}
-          />
-          <Stat label="Status" value={c.status.toLowerCase()} />
-        </div>
+        {/* CTA chip — directs to contribute card */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.55 }}
+          className="mt-10 flex flex-wrap items-center justify-center gap-3 text-sm"
+        >
+          <a
+            href="#contribute"
+            className="group inline-flex items-center gap-2 rounded-full px-5 py-2.5 font-semibold text-white transition"
+            style={{
+              background: 'linear-gradient(135deg, #8e5cff 0%, #e63e9d 100%)',
+              boxShadow: '0 8px 30px -4px rgba(142, 92, 255, 0.55), inset 0 1px 0 0 rgba(255,255,255,0.18)',
+            }}
+          >
+            Contribute
+            <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+          </a>
+          <a
+            href="#dependencies"
+            className="inline-flex items-center gap-2 rounded-full border border-[--color-border] bg-[--color-bg-elevated]/60 px-5 py-2.5 font-medium text-[--color-ink-muted] backdrop-blur-sm transition hover:border-[--color-brand-border] hover:bg-[--color-brand-soft] hover:text-[--color-ink]"
+          >
+            Track dependencies
+          </a>
+        </motion.div>
       </div>
-    </Card>
+    </section>
   )
 }
 
-function Stat({
+function BigStat({
   label,
-  value,
-  sub,
+  valueNum,
+  unit,
+  percent,
+  sublabel,
+  tone,
+  emphasis,
 }: {
   label: string
-  value: string
-  sub?: string
+  valueNum: number
+  unit: string
+  percent?: number
+  sublabel?: string
+  tone: 'brand' | 'success' | 'neutral'
+  emphasis?: boolean
 }) {
+  const accent =
+    tone === 'brand'
+      ? 'text-[--color-brand]'
+      : tone === 'success'
+        ? 'text-[--color-success]'
+        : 'text-[--color-ink-muted]'
+
+  // Decimal precision matches formatEthAmount's adaptive policy.
+  const decimals = valueNum >= 1000 ? 0 : valueNum >= 10 ? 1 : 2
+
   return (
-    <div className="rounded-xl border border-[--color-border] bg-[--color-bg]/40 px-4 py-3">
-      <div className="text-xs uppercase tracking-wider text-[--color-ink-soft]">
-        {label}
+    <div
+      className={cn(
+        'glass relative overflow-hidden rounded-2xl px-5 py-5',
+        emphasis &&
+          'sm:scale-[1.03] sm:-mt-1 sm:shadow-[0_20px_60px_-10px_rgba(142,92,255,0.35)]',
+      )}
+    >
+      {emphasis ? (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-60"
+          style={{
+            background:
+              'radial-gradient(400px 200px at 100% 0%, rgba(230, 62, 157, 0.15) 0%, transparent 60%)',
+          }}
+        />
+      ) : null}
+      <div className="relative">
+        <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.14em] text-[--color-ink-soft]">
+          <span>{label}</span>
+          {percent !== undefined ? (
+            <AnimatedNumber
+              value={percent}
+              decimals={1}
+              durationMs={1000}
+              format={(n) => `${n.toFixed(1)}%`}
+              className={cn('font-mono tabular-nums', accent)}
+            />
+          ) : null}
+        </div>
+        <div className="mt-2 flex items-baseline gap-1.5">
+          <AnimatedNumber
+            value={valueNum}
+            decimals={decimals}
+            durationMs={1100}
+            className={cn(
+              'font-mono font-bold tabular-nums tracking-tight',
+              emphasis ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl',
+              accent,
+            )}
+          />
+          <span className="text-xs font-medium text-[--color-ink-soft]">{unit}</span>
+        </div>
+        {sublabel ? (
+          <div className="mt-1 text-xs text-[--color-ink-soft]">{sublabel}</div>
+        ) : null}
       </div>
-      <div className="mt-1 text-lg font-semibold capitalize tabular-nums">{value}</div>
-      {sub ? <div className="text-xs text-[--color-ink-soft]">{sub}</div> : null}
     </div>
   )
 }
