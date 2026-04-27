@@ -84,6 +84,9 @@ function PledgeRow({ pledge, index }: { pledge: Pledge; index: number }) {
         </div>
         <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-[--color-ink-soft]">
           <PledgeStatusBadge status={pledge.status} />
+          {Number(pledge.pledgedAmount) === 0 && pledge.status === 'CONFIRMED' ? (
+            <Badge tone="neutral">TBD</Badge>
+          ) : null}
           <PlatformBadge
             url={pledge.governanceProposalUrl}
             platform={pledge.governancePlatform}

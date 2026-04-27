@@ -12,7 +12,7 @@ export function PledgeStatusBadge({ status }: { status: DefiUnited_PledgeStatus 
     case 'RECEIVED':
       return <Badge tone="success">Received</Badge>
     case 'GOVERNANCE_PENDING':
-      return <Badge tone="warning">Governance pending</Badge>
+      return <Badge tone="warning">Pending vote</Badge>
     case 'PROPOSED':
       return <Badge tone="neutral">Proposed</Badge>
     case 'CANCELLED':

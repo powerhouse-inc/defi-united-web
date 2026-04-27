@@ -8,7 +8,9 @@ dist
 .pnpm-store
 .next/**
 .vercel
-modules/__generated__/graphql/gql-generated.ts
+# Codegen output is checked in so Docker builds don't need to introspect
+# a live GraphQL schema. Regenerate locally with `pnpm codegen`.
+# modules/__generated__/graphql/gql-generated.ts
 playwright-report
 test-results
 tsconfig.tsbuildinfo
