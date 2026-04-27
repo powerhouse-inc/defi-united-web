@@ -242,13 +242,22 @@ function SiteFooter() {
                 <ExternalLink className="h-3 w-3 opacity-60" />
               </a>
               <a
-                href="https://github.com/powerhousedao/defi-united"
+                href="https://github.com/powerhouse-inc/defi-united-web"
                 target="_blank"
                 rel="noreferrer"
                 className="flex items-center gap-1.5 text-sm transition-colors hover:text-[--color-ink]"
               >
                 <Github className="h-3.5 w-3.5" />
-                GitHub
+                GitHub (web)
+              </a>
+              <a
+                href="https://github.com/powerhouse-inc/defi-united-package"
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-1.5 text-sm transition-colors hover:text-[--color-ink]"
+              >
+                <Github className="h-3.5 w-3.5" />
+                GitHub (package)
               </a>
             </div>
           </nav>
