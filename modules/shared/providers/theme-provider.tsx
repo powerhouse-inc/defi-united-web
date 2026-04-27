@@ -21,7 +21,16 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    setTheme(getInitialTheme())
+    // Sync the DOM `data-theme` attribute to the resolved initial theme on
+    // mount. Without this, the inline default-dark script and React state
+    // can disagree: e.g., user on a light-mode OS sees the page rendered
+    // dark (from the inline script) but React state is "light", so the
+    // toggle icon shows Moon and the first click only flips state+icon to
+    // "dark" — same dark page, no visible change. Forcing the attribute
+    // to match state ensures icon and rendered theme are aligned.
+    const initial = getInitialTheme()
+    setTheme(initial)
+    document.documentElement.setAttribute('data-theme', initial)
     setMounted(true)
   }, [])
 
