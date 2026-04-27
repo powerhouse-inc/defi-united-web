@@ -51,10 +51,14 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}
+          # workflow_dispatch builds (custom URLs for a specific environment
+          # like staging) get a `staging-sha-*` prefix so they don't collide
+          # with the auto-build on push that bakes the prod defaults.
           tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=sha,prefix=sha-,format=short
-            type=ref,event=branch
+            type=raw,value=latest,enable=${{ github.event_name == 'push' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
+            type=sha,prefix=sha-,format=short,enable=${{ github.event_name == 'push' || github.event_name == 'workflow_call' }}
+            type=sha,prefix=staging-sha-,format=short,enable=${{ github.event_name == 'workflow_dispatch' }}
+            type=ref,event=branch,enable=${{ github.event_name == 'push' }}
             type=ref,event=tag
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
