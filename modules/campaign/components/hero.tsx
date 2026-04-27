@@ -63,7 +63,12 @@ export function CampaignHero({
 
   const target = Number(c.targetAmount ?? 0) || 0
   const pledged = Number(c.totalPledged) || 0
-  const received = Number(c.totalReceived) || 0
+  const docReceived = Number(c.totalReceived) || 0
+  const pendingReceived = Number(c.pendingReceiptsEthEquivalent ?? 0) || 0
+  // Headline number: document-derived audit trail + the on-chain pending
+  // balance (delta the live overlay can see but the processor hasn't yet
+  // recorded as a receipt). Counter ticks the moment a tx confirms.
+  const received = docReceived + pendingReceived
   const pledgedPct = target > 0 ? Math.min((pledged / target) * 100, 100) : 0
   const receivedPct = target > 0 ? Math.min((received / target) * 100, 100) : 0
   const incidentDate = c.incidentDate
@@ -207,10 +212,11 @@ export function CampaignHero({
             />
             <BigStat
               label="Received"
-              valueNum={Number(c.totalReceived) || 0}
+              valueNum={received}
               unit="ETH"
               percent={receivedPct}
               tone="success"
+              pendingInboundEth={pendingReceived}
             />
             <BigStat
               label="Target"
@@ -275,6 +281,7 @@ function BigStat({
   sublabel,
   tone,
   emphasis,
+  pendingInboundEth,
 }: {
   label: string
   valueNum: number
@@ -283,6 +290,7 @@ function BigStat({
   sublabel?: string
   tone: 'brand' | 'success' | 'neutral'
   emphasis?: boolean
+  pendingInboundEth?: number
 }) {
   const accent =
     tone === 'brand'
@@ -340,6 +348,28 @@ function BigStat({
         </div>
         {sublabel ? (
           <div className="mt-1 text-xs text-[--color-ink-soft]">{sublabel}</div>
+        ) : null}
+        {pendingInboundEth && pendingInboundEth > 0.0001 ? (
+          <div
+            className="mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-mono font-semibold tracking-wider uppercase"
+            style={{
+              background: 'linear-gradient(135deg, rgba(142, 92, 255, 0.18), rgba(230, 62, 157, 0.14))',
+              border: '1px solid rgba(142, 92, 255, 0.35)',
+              color: 'var(--color-brand-glow, #b794ff)',
+            }}
+          >
+            <span className="relative flex size-1.5">
+              <span
+                className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-70"
+                style={{ background: '#e63e9d' }}
+              />
+              <span
+                className="relative inline-flex size-1.5 rounded-full"
+                style={{ background: '#e63e9d' }}
+              />
+            </span>
+            +{pendingInboundEth >= 1 ? pendingInboundEth.toFixed(2) : pendingInboundEth.toFixed(4)} ETH inbound
+          </div>
         ) : null}
       </div>
     </div>

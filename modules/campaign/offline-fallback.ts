@@ -353,4 +353,7 @@ export const OFFLINE_CAMPAIGN: CampaignDetail = {
   externalLinks: [
     { __typename: 'DefiUnited_PublicExternalLink', label: "DeFi United landing page", url: "https://defiunited.world/" },
   ],
+  recentReceipts: [],
+  onchainLiveBalance: null,
+  pendingReceiptsEthEquivalent: null,
 }

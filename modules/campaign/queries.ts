@@ -68,6 +68,34 @@ export const GET_CAMPAIGN = gql`
           url
         }
       }
+      recentReceipts(limit: 25) {
+        id
+        txHash
+        blockNumber
+        blockTimestamp
+        fromAddress
+        toAddress
+        assetSymbol
+        assetContractAddress
+        amount
+        ethEquivalentAmount
+        ethPriceUsdAtReceipt
+        reconciliationStatus
+        matchedPledgeId
+      }
+      onchainLiveBalance {
+        totalEthEquivalent
+        ethPriceUsd
+        fetchedAt
+        perAsset {
+          symbol
+          contractAddress
+          rawBalance
+          formattedAmount
+          ethEquivalent
+        }
+      }
+      pendingReceiptsEthEquivalent
       externalLinks {
         label
         url

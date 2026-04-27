@@ -18,6 +18,8 @@ type TickerEntry = {
   primary: string
   secondary: string
   amount?: string
+  txHash?: string
+  fromAddress?: string
   depStatus?:
     | 'OPEN'
     | 'IN_PROGRESS'
@@ -25,6 +27,11 @@ type TickerEntry = {
     | 'BLOCKED'
     | 'ABANDONED'
   ts: number
+}
+
+function shortAddr(addr: string | null | undefined): string {
+  if (!addr) return ''
+  return `${addr.slice(0, 6)}…${addr.slice(-4)}`
 }
 
 function relativeTime(ts: number): string {
@@ -39,9 +46,10 @@ function relativeTime(ts: number): string {
 }
 
 /**
- * Builds a synthetic activity feed from the campaign payload. Real on-chain
- * receipts would surface via a dedicated subgraph projection — for now we
- * derive entries from RECEIVED pledges + recent status updates.
+ * Builds the activity feed from on-chain receipts indexed by the
+ * onchain-receipt-watcher processor + recent status updates + dependency
+ * activity. Receipts are real tx data with hashes you can click through
+ * to Etherscan; the others fill the feed with coordination context.
  */
 function buildEntries(campaign: CampaignDetail): TickerEntry[] {
   const entries: TickerEntry[] = []
@@ -58,26 +66,34 @@ function buildEntries(campaign: CampaignDetail): TickerEntry[] {
     })
   }
 
-  // RECEIVED pledges → "transaction" rows. Without exposed receivedAt on the
-  // public projection, scale timestamps off the campaign's lastUpdateAt to
-  // keep them feeling fresh and ordered.
+  // Real on-chain receipts indexed by the processor → "transaction" rows.
+  // Skip REORGED ones so they don't pollute the feed.
+  const receipts = campaign.recentReceipts ?? []
+  for (const r of receipts) {
+    if (r.reconciliationStatus === 'REORGED') continue
+    const ts = r.blockTimestamp
+      ? new Date(r.blockTimestamp).getTime()
+      : Date.now()
+    const ethEq = Number(r.ethEquivalentAmount) || 0
+    const amountLabel =
+      r.assetSymbol === 'ETH'
+        ? `${formatEthAmount(r.amount)} ETH`
+        : `${formatEthAmount(r.amount)} ${r.assetSymbol} (${ethEq.toFixed(4)} ETH)`
+    entries.push({
+      id: `rcpt-${r.id}`,
+      kind: 'receipt',
+      primary: shortAddr(r.fromAddress) || 'Anonymous',
+      secondary: 'sent on-chain',
+      amount: amountLabel,
+      txHash: r.txHash,
+      fromAddress: r.fromAddress,
+      ts,
+    })
+  }
+
   const baseTs = campaign.lastUpdateAt
     ? new Date(campaign.lastUpdateAt).getTime()
     : Date.now()
-  let offset = 0
-  for (const p of campaign.contributorsPublic) {
-    if (p.status !== 'RECEIVED') continue
-    if (!p.receivedAmount || Number(p.receivedAmount) <= 0) continue
-    offset += 12 * 60 * 1000 // 12 minute spread
-    entries.push({
-      id: `recv-${p.contributorDisplayName}`,
-      kind: 'receipt',
-      primary: p.contributorDisplayName,
-      secondary: 'sent on-chain',
-      amount: `${formatEthAmount(p.receivedAmount)} ${p.assetSymbol}`,
-      ts: baseTs - offset,
-    })
-  }
 
   // Dependencies → "governance event" rows. Resolved ones at the front,
   // in-flight blockers visible too. Spread their synthetic timestamps so
@@ -265,6 +281,17 @@ function TickerPill({
         <span className="font-mono text-[--color-ink-soft]">
           {relativeTime(entry.ts)}
         </span>
+        {entry.txHash ? (
+          <a
+            href={`https://etherscan.io/tx/${entry.txHash}`}
+            target="_blank"
+            rel="noreferrer"
+            className="ml-1 font-mono text-[10px] text-[--color-ink-soft] underline-offset-2 hover:text-[--color-brand] hover:underline"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {entry.txHash.slice(0, 6)}…{entry.txHash.slice(-4)}
+          </a>
+        ) : null}
       </motion.div>
     </AnimatePresence>
   )
