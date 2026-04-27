@@ -13,6 +13,7 @@ import { StatusTimeline } from './timeline'
 import { EmbedSnippet } from './embed-snippet'
 import { Faq } from './faq'
 import { LiveTicker } from './live-ticker'
+import { TreasuryGlance } from './treasury-glance'
 import { Reveal } from '@/modules/shared/components/reveal'
 
 /**
@@ -41,6 +42,8 @@ export function CampaignPage({ initial }: { initial: CampaignDetail }) {
   return (
     <div className="flex w-full flex-col gap-0">
       <CampaignHero slug={c.slug} initial={c} />
+
+      <TreasuryGlance campaign={c} />
 
       <LiveTicker campaign={c} />
 
