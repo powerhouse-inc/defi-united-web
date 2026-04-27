@@ -24,7 +24,18 @@ export function CampaignPage({ initial }: { initial: CampaignDetail }) {
     initialData: initial,
     pollMs: 5000,
   })
-  const c = data ?? initial
+  const raw = data ?? initial
+  // Layer the on-chain live overlay on top of the document-derived total so
+  // every downstream section (hero, thermometer, progress, contract view,
+  // FAQ, etc.) shows the same number — receipts that the processor has
+  // recorded + pending value the live overlay can see in the treasury.
+  const docReceived = Number(raw.totalReceived) || 0
+  const pending = Number(raw.pendingReceiptsEthEquivalent ?? 0) || 0
+  const layered = docReceived + pending
+  const c: CampaignDetail = {
+    ...raw,
+    totalReceived: String(layered),
+  }
 
   return (
     <div className="flex w-full flex-col gap-0">
