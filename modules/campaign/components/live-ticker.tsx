@@ -155,7 +155,7 @@ export function LiveTicker({ campaign }: { campaign: CampaignDetail }) {
 
   if (entries.length === 0) {
     return (
-      <section className="relative isolate w-full border-y border-[--color-border] bg-[--color-bg-elevated]/60 backdrop-blur-md">
+      <section className="relative isolate w-full border-b border-[--color-border] bg-[--color-bg-elevated]/60 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3 text-xs sm:px-6">
           <span className="text-[--color-ink-soft]">
             Watching the campaign treasury for inbound transfers…
@@ -169,7 +169,7 @@ export function LiveTicker({ campaign }: { campaign: CampaignDetail }) {
   const loop = [...entries, ...entries]
 
   return (
-    <section className="relative isolate w-full border-y border-[--color-border] bg-[--color-bg-elevated]/60 backdrop-blur-md">
+    <section className="relative isolate w-full border-b border-[--color-border] bg-[--color-bg-elevated]/60 backdrop-blur-md">
       <div className="ticker-window relative overflow-hidden px-4 py-3 sm:px-6">
         <div className="ticker-fade ticker-fade--left" aria-hidden="true" />
         <div className="ticker-fade ticker-fade--right" aria-hidden="true" />
