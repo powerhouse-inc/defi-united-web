@@ -97,7 +97,7 @@ function buildEntries(campaign: CampaignDetail): TickerEntry[] {
     entries.push({
       id: `rcpt-${r.id}`,
       kind: 'receipt',
-      primary: shortAddr(r.fromAddress) || 'Anonymous',
+      primary: r.fromEnsName || shortAddr(r.fromAddress) || 'Anonymous',
       secondary: 'sent on-chain',
       amount: amountLabel,
       txHash: r.txHash,

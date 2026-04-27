@@ -74,6 +74,7 @@ export const GET_CAMPAIGN = gql`
         blockNumber
         blockTimestamp
         fromAddress
+        fromEnsName
         toAddress
         assetSymbol
         assetContractAddress
@@ -89,6 +90,7 @@ export const GET_CAMPAIGN = gql`
         blockNumber
         blockTimestamp
         fromAddress
+        fromEnsName
         toAddress
         assetSymbol
         assetContractAddress

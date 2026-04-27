@@ -53,7 +53,7 @@ export function CampaignPage({ initial }: { initial: CampaignDetail }) {
             id="contribute"
             className="flex flex-col gap-6 scroll-mt-24"
           >
-            <ContributionAddressCard campaign={c} />
+            <ContributionAddressCard addresses={c.contributionAddresses} />
             <ContributorsTable contributors={c.contributorsPublic} />
           </div>
         </Reveal>
