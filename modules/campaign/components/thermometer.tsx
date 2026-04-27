@@ -1,7 +1,6 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { useEffect, useRef, useState } from 'react'
 import { cn } from '@/modules/shared/lib/cn'
 
 /**
@@ -26,21 +25,11 @@ export function Thermometer({
   const pledgedPct = Math.min((pledged / target) * 100, 100)
   const receivedPct = Math.min((received / target) * 100, 100)
 
-  const [pulseKey, setPulseKey] = useState(0)
-  const lastSeen = useRef<string | null | undefined>(lastUpdateAt)
-  useEffect(() => {
-    if (lastUpdateAt && lastUpdateAt !== lastSeen.current) {
-      lastSeen.current = lastUpdateAt
-      setPulseKey((k) => k + 1)
-    }
-  }, [lastUpdateAt])
-
   return (
     <div className="space-y-3">
       <div className="relative">
         <div className="relative h-3 overflow-hidden rounded-full bg-[--color-border-soft]">
           <motion.div
-            key={`bar-${pulseKey}`}
             className={cn(
               'absolute inset-y-0 left-0 rounded-full pulse-ring',
             )}
@@ -48,7 +37,7 @@ export function Thermometer({
               background:
                 'linear-gradient(90deg, #8e5cff 0%, #e63e9d 100%)',
             }}
-            initial={{ width: 0 }}
+            initial={false}
             animate={{ width: `${pledgedPct}%` }}
             transition={{ duration: 0.8, ease: 'easeOut' }}
           />
@@ -58,7 +47,7 @@ export function Thermometer({
               background: 'rgba(54, 211, 153, 0.6)',
               boxShadow: '0 0 12px rgba(54, 211, 153, 0.5)',
             }}
-            initial={{ width: 0 }}
+            initial={false}
             animate={{ width: `${receivedPct}%` }}
             transition={{ duration: 0.8, ease: 'easeOut', delay: 0.1 }}
           />
