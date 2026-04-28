@@ -909,6 +909,31 @@ export type DefiUnited_DependencyStatus =
   | 'OPEN'
   | 'RESOLVED';
 
+export type DefiUnited_OnchainAssetBalance = {
+  __typename?: 'DefiUnited_OnchainAssetBalance';
+  contractAddress?: Maybe<Scalars['String']['output']>;
+  ethEquivalent: Scalars['String']['output'];
+  formattedAmount: Scalars['String']['output'];
+  rawBalance: Scalars['String']['output'];
+  symbol: Scalars['String']['output'];
+};
+
+export type DefiUnited_OnchainEngagement = {
+  __typename?: 'DefiUnited_OnchainEngagement';
+  /** Total inbound on-chain transfer count across all whitelisted assets, derived from non-REORGED receipt documents. */
+  totalTransferCount: Scalars['Int']['output'];
+  /** Distinct sender addresses across the same receipt set. */
+  uniqueSenderCount: Scalars['Int']['output'];
+};
+
+export type DefiUnited_OnchainLiveBalance = {
+  __typename?: 'DefiUnited_OnchainLiveBalance';
+  ethPriceUsd: Scalars['Float']['output'];
+  fetchedAt: Scalars['String']['output'];
+  perAsset: Array<DefiUnited_OnchainAssetBalance>;
+  totalEthEquivalent: Scalars['String']['output'];
+};
+
 export type DefiUnited_OperationResult = {
   __typename?: 'DefiUnited_OperationResult';
   error?: Maybe<Scalars['String']['output']>;
@@ -940,11 +965,53 @@ export type DefiUnited_PublicCampaign = {
   dependenciesPublic: Array<DefiUnited_PublicDependency>;
   dependenciesResolved: Scalars['Int']['output'];
   externalLinks: Array<DefiUnited_PublicExternalLink>;
+  /**
+   * ETH-denominated hero number combining pledged commitments with
+   * on-chain inflows: totalPledged + pendingReceiptsEthEquivalent.
+   * Matches the math defiunited.world surfaces.
+   */
+  headlineTotalEthEquivalent: Scalars['String']['output'];
+  /**
+   * USD-denominated hero number — the prominently displayed figure
+   * on defiunited.world. Computed as headlineTotalEthEquivalent
+   * multiplied by onchainLiveBalance.ethPriceUsd. Null when no
+   * Alchemy URL is configured (price unavailable).
+   */
+  headlineTotalUsd?: Maybe<Scalars['String']['output']>;
   incidentDate?: Maybe<Scalars['String']['output']>;
   lastUpdateAt?: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
+  /**
+   * Aggregate counters over the campaign's on-chain receipt history
+   * (across whitelisted assets). Mirrors the "126k+ Transfers /
+   * 116k+ Wallets" counters defiunited.world surfaces.
+   */
+  onchainEngagement: DefiUnited_OnchainEngagement;
+  /**
+   * Live on-chain balance overlay. Snapshot of native ETH + the accepted
+   * stablecoin balances of the campaign's first treasury, expressed in
+   * ETH-equivalent. Null if the RPC fetch failed or no Alchemy URL is
+   * configured. Cached server-side ~5s.
+   */
+  onchainLiveBalance?: Maybe<DefiUnited_OnchainLiveBalance>;
+  /**
+   * max(0, onchainLiveBalance.totalEthEquivalent - totalReceived). The
+   * portion of treasury inflows the on-chain layer can see but which
+   * haven't been recorded as receipt documents yet — used for the live
+   * "X.XX ETH inbound" pill on the frontend.
+   */
+  pendingReceiptsEthEquivalent?: Maybe<Scalars['String']['output']>;
   percentReceived: Scalars['Float']['output'];
   pledgeCount: Scalars['Int']['output'];
+  /**
+   * Last N actual inbound transfers to the treasury, fetched live via
+   * Alchemy. Raw on-chain feed — may not yet be indexed as receipt
+   * documents. Reconciliation status is "ONCHAIN" so the UI can
+   * distinguish these from doc-derived receipts.
+   */
+  recentOnchainTransfers: Array<DefiUnited_PublicReceiptEntry>;
+  /** Most recent on-chain transfer receipts, newest first. */
+  recentReceipts: Array<DefiUnited_PublicReceiptEntry>;
   recentUpdates: Array<DefiUnited_PublicStatusUpdate>;
   riskDisclaimer?: Maybe<Scalars['String']['output']>;
   slug: Scalars['String']['output'];
@@ -952,7 +1019,22 @@ export type DefiUnited_PublicCampaign = {
   summary?: Maybe<Scalars['String']['output']>;
   targetAmount?: Maybe<Scalars['String']['output']>;
   totalPledged: Scalars['String']['output'];
+  /**
+   * Sum of receipt.ethEquivalentAmount across non-REORGED on-chain
+   * receipts. Document-derived audit trail; lags real chain by
+   * confirmation_depth + processor poll interval.
+   */
   totalReceived: Scalars['String']['output'];
+};
+
+
+export type DefiUnited_PublicCampaignRecentOnchainTransfersArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type DefiUnited_PublicCampaignRecentReceiptsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type DefiUnited_PublicContributionAddress = {
@@ -1010,6 +1092,48 @@ export type DefiUnited_PublicPledge = {
   publicNotes?: Maybe<Scalars['String']['output']>;
   receivedAmount?: Maybe<Scalars['String']['output']>;
   status: DefiUnited_PledgeStatus;
+};
+
+/**
+ * Standalone receipt type for the subscription feed — mirrors the public
+ * receipt properties without requiring a full campaign projection.
+ */
+export type DefiUnited_PublicReceipt = {
+  __typename?: 'DefiUnited_PublicReceipt';
+  amount: Scalars['String']['output'];
+  assetSymbol: Scalars['String']['output'];
+  blockNumber?: Maybe<Scalars['Int']['output']>;
+  blockTimestamp?: Maybe<Scalars['String']['output']>;
+  campaignSlug: Scalars['String']['output'];
+  chainId?: Maybe<Scalars['Int']['output']>;
+  fromAddress?: Maybe<Scalars['String']['output']>;
+  id: Scalars['String']['output'];
+  matchedPledgeId?: Maybe<Scalars['String']['output']>;
+  reconciliationStatus: Scalars['String']['output'];
+  toAddress: Scalars['String']['output'];
+  txHash?: Maybe<Scalars['String']['output']>;
+};
+
+export type DefiUnited_PublicReceiptEntry = {
+  __typename?: 'DefiUnited_PublicReceiptEntry';
+  amount: Scalars['String']['output'];
+  assetContractAddress?: Maybe<Scalars['String']['output']>;
+  assetSymbol: Scalars['String']['output'];
+  blockNumber: Scalars['Int']['output'];
+  blockTimestamp: Scalars['String']['output'];
+  ethEquivalentAmount: Scalars['String']['output'];
+  ethPriceUsdAtReceipt: Scalars['Float']['output'];
+  fromAddress: Scalars['String']['output'];
+  /**
+   * ENS primary name for fromAddress (mainnet only). Reverse-resolved
+   * via the Universal Resolver, cached server-side 24h.
+   */
+  fromEnsName?: Maybe<Scalars['String']['output']>;
+  id: Scalars['String']['output'];
+  matchedPledgeId?: Maybe<Scalars['String']['output']>;
+  reconciliationStatus: Scalars['String']['output'];
+  toAddress: Scalars['String']['output'];
+  txHash: Scalars['String']['output'];
 };
 
 export type DefiUnited_PublicStatusUpdate = {
@@ -4120,6 +4244,21 @@ export type IDocumentOperationsArgs = {
   skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
+export type InstallPackageResult = {
+  __typename?: 'InstallPackageResult';
+  documentModelsLoaded: Scalars['Int']['output'];
+  package: InstalledPackage;
+};
+
+export type InstalledPackage = {
+  __typename?: 'InstalledPackage';
+  documentTypes: Array<Scalars['String']['output']>;
+  installedAt: Scalars['DateTime']['output'];
+  name: Scalars['String']['output'];
+  registryUrl: Scalars['String']['output'];
+  version?: Maybe<Scalars['String']['output']>;
+};
+
 export type JobChangeEvent = {
   __typename?: 'JobChangeEvent';
   error?: Maybe<Scalars['String']['output']>;
@@ -4193,6 +4332,7 @@ export type Mutation = {
   createEmptyDocument: PhDocument;
   deleteDocument: Scalars['Boolean']['output'];
   deleteDocuments: Scalars['Boolean']['output'];
+  installPackage: InstallPackageResult;
   moveChildren: MoveChildrenResult;
   mutateDocument: PhDocument;
   mutateDocumentAsync: Scalars['String']['output'];
@@ -4200,6 +4340,7 @@ export type Mutation = {
   removeChildren: PhDocument;
   renameDocument: PhDocument;
   touchChannel: TouchChannelResult;
+  uninstallPackage: Scalars['Boolean']['output'];
 };
 
 
@@ -4377,6 +4518,22 @@ export type MutationDeleteDocumentsArgs = {
  * `renown.getBearerToken({ expiresIn: 600 })` — do NOT pass an `aud`
  * claim or the verifier will reject the token.
  */
+export type MutationInstallPackageArgs = {
+  name: Scalars['String']['input'];
+  registryUrl?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+/**
+ * Operator-only mutation API for DeFi United relief campaigns.
+ *
+ * Authentication: requires a Renown DID bearer token in the
+ * `Authorization: Bearer <jwt>` header. The recovered wallet address
+ * must be listed in the target campaign's `operatorWallets`. Mints the
+ * bearer token client-side via @powerhousedao/reactor-browser:
+ * `renown.getBearerToken({ expiresIn: 600 })` — do NOT pass an `aud`
+ * claim or the verifier will reject the token.
+ */
 export type MutationMoveChildrenArgs = {
   branch?: InputMaybe<Scalars['String']['input']>;
   documentIdentifiers: Array<Scalars['String']['input']>;
@@ -4482,6 +4639,21 @@ export type MutationTouchChannelArgs = {
   input: TouchChannelInput;
 };
 
+
+/**
+ * Operator-only mutation API for DeFi United relief campaigns.
+ *
+ * Authentication: requires a Renown DID bearer token in the
+ * `Authorization: Bearer <jwt>` header. The recovered wallet address
+ * must be listed in the target campaign's `operatorWallets`. Mints the
+ * bearer token client-side via @powerhousedao/reactor-browser:
+ * `renown.getBearerToken({ expiresIn: 600 })` — do NOT pass an `aud`
+ * claim or the verifier will reject the token.
+ */
+export type MutationUninstallPackageArgs = {
+  name: Scalars['String']['input'];
+};
+
 export type OnchainReceipt = IDocument & {
   __typename?: 'OnchainReceipt';
   createdAtUtcIso: Scalars['DateTime']['output'];
@@ -4530,6 +4702,8 @@ export type OnchainReceiptMutations = {
   createEmptyDocument: OnchainReceiptMutationResult;
   markAmbiguous: OnchainReceiptMutationResult;
   markAmbiguousAsync: Scalars['String']['output'];
+  markReorged: OnchainReceiptMutationResult;
+  markReorgedAsync: Scalars['String']['output'];
   overrideMatch: OnchainReceiptMutationResult;
   overrideMatchAsync: Scalars['String']['output'];
   recordReceipt: OnchainReceiptMutationResult;
@@ -4592,6 +4766,20 @@ export type OnchainReceiptMutationsMarkAmbiguousArgs = {
 export type OnchainReceiptMutationsMarkAmbiguousAsyncArgs = {
   docId: Scalars['PHID']['input'];
   input: OnchainReceipt_MarkAmbiguousInput;
+};
+
+
+/** Mutations: OnchainReceipt */
+export type OnchainReceiptMutationsMarkReorgedArgs = {
+  docId: Scalars['PHID']['input'];
+  input: OnchainReceipt_MarkReorgedInput;
+};
+
+
+/** Mutations: OnchainReceipt */
+export type OnchainReceiptMutationsMarkReorgedAsyncArgs = {
+  docId: Scalars['PHID']['input'];
+  input: OnchainReceipt_MarkReorgedInput;
 };
 
 
@@ -4717,6 +4905,10 @@ export type OnchainReceipt_MarkAmbiguousInput = {
   _?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
+export type OnchainReceipt_MarkReorgedInput = {
+  _?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
 export type OnchainReceipt_OnchainReceiptState = {
   __typename?: 'OnchainReceipt_OnchainReceiptState';
   amount?: Maybe<Scalars['Amount_Tokens']['output']>;
@@ -4724,6 +4916,8 @@ export type OnchainReceipt_OnchainReceiptState = {
   blockNumber?: Maybe<Scalars['Int']['output']>;
   blockTimestamp?: Maybe<Scalars['DateTime']['output']>;
   chainId?: Maybe<Scalars['Int']['output']>;
+  ethEquivalentAmount?: Maybe<Scalars['Amount_Tokens']['output']>;
+  ethPriceUsdAtReceipt?: Maybe<Scalars['Float']['output']>;
   fromAddress?: Maybe<Scalars['EthereumAddress']['output']>;
   matchedPledgeId?: Maybe<Scalars['PHID']['output']>;
   rawLog?: Maybe<Scalars['String']['output']>;
@@ -4739,6 +4933,8 @@ export type OnchainReceipt_OnchainReceiptStateInput = {
   blockNumber?: InputMaybe<Scalars['Int']['input']>;
   blockTimestamp?: InputMaybe<Scalars['DateTime']['input']>;
   chainId?: InputMaybe<Scalars['Int']['input']>;
+  ethEquivalentAmount?: InputMaybe<Scalars['Amount_Tokens']['input']>;
+  ethPriceUsdAtReceipt?: InputMaybe<Scalars['Float']['input']>;
   fromAddress?: InputMaybe<Scalars['EthereumAddress']['input']>;
   matchedPledgeId?: InputMaybe<Scalars['PHID']['input']>;
   rawLog?: InputMaybe<Scalars['String']['input']>;
@@ -4791,6 +4987,7 @@ export type OnchainReceipt_ReconciliationStatus =
   | 'AMBIGUOUS'
   | 'MANUALLY_OVERRIDDEN'
   | 'MATCHED'
+  | 'REORGED'
   | 'UNMATCHED';
 
 export type OnchainReceipt_RecordReceiptInput = {
@@ -4799,6 +4996,8 @@ export type OnchainReceipt_RecordReceiptInput = {
   blockNumber: Scalars['Int']['input'];
   blockTimestamp: Scalars['DateTime']['input'];
   chainId: Scalars['Int']['input'];
+  ethEquivalentAmount: Scalars['Amount_Tokens']['input'];
+  ethPriceUsdAtReceipt: Scalars['Float']['input'];
   fromAddress: Scalars['EthereumAddress']['input'];
   rawLog?: InputMaybe<Scalars['String']['input']>;
   toAddress: Scalars['EthereumAddress']['input'];
@@ -5340,7 +5539,6 @@ export type PollSyncEnvelopesResult = {
   ackOrdinal: Scalars['Int']['output'];
   deadLetters: Array<DeadLetterInfo>;
   envelopes: Array<SyncEnvelope>;
-  hasMore: Scalars['Boolean']['output'];
 };
 
 export type ProcessorModule = IDocument & {
@@ -5733,6 +5931,8 @@ export type Query = {
   documentOperations: ReactorOperationResultPage;
   documentParents: PhDocumentResultPage;
   findDocuments: PhDocumentResultPage;
+  installedPackage?: Maybe<InstalledPackage>;
+  installedPackages: Array<InstalledPackage>;
   jobStatus?: Maybe<JobInfo>;
   pollSyncEnvelopes: PollSyncEnvelopesResult;
 };
@@ -5845,6 +6045,16 @@ export type QueryFindDocumentsArgs = {
   paging?: InputMaybe<PagingInput>;
   search?: InputMaybe<SearchFilterInput>;
   view?: InputMaybe<ViewFilterInput>;
+};
+
+
+/**
+ * Public read API for the cross-campaign contributor registry. Lists every
+ * Contributor Profile across the DAO drive plus a derived view of which
+ * campaigns each contributor has participated in.
+ */
+export type QueryInstalledPackageArgs = {
+  name: Scalars['String']['input'];
 };
 
 
@@ -7046,19 +7256,64 @@ export type SubgraphModule_ViewFilterInput = {
   scopes?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
+/**
+ * Real-time campaign updates. Fires whenever a document belonging to a
+ * campaign changes (pledge, receipt, dependency, status update, campaign).
+ */
 export type Subscription = {
   __typename?: 'Subscription';
+  /** Any campaign document changed — resolves to the full projected campaign. */
+  DefiUnited_campaignUpdated?: Maybe<DefiUnited_PublicCampaign>;
+  /** A new on-chain receipt arrived for a campaign. */
+  DefiUnited_receiptArrived?: Maybe<DefiUnited_PublicReceipt>;
+  /** A status update was published or edited. */
+  DefiUnited_statusUpdatePublished?: Maybe<DefiUnited_PublicStatusUpdate>;
   documentChanges: DocumentChangeEvent;
   jobChanges: JobChangeEvent;
 };
 
 
+/**
+ * Real-time campaign updates. Fires whenever a document belonging to a
+ * campaign changes (pledge, receipt, dependency, status update, campaign).
+ */
+export type SubscriptionDefiUnited_CampaignUpdatedArgs = {
+  slug?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+/**
+ * Real-time campaign updates. Fires whenever a document belonging to a
+ * campaign changes (pledge, receipt, dependency, status update, campaign).
+ */
+export type SubscriptionDefiUnited_ReceiptArrivedArgs = {
+  slug: Scalars['String']['input'];
+};
+
+
+/**
+ * Real-time campaign updates. Fires whenever a document belonging to a
+ * campaign changes (pledge, receipt, dependency, status update, campaign).
+ */
+export type SubscriptionDefiUnited_StatusUpdatePublishedArgs = {
+  slug: Scalars['String']['input'];
+};
+
+
+/**
+ * Real-time campaign updates. Fires whenever a document belonging to a
+ * campaign changes (pledge, receipt, dependency, status update, campaign).
+ */
 export type SubscriptionDocumentChangesArgs = {
   search?: InputMaybe<SearchFilterInput>;
   view?: InputMaybe<ViewFilterInput>;
 };
 
 
+/**
+ * Real-time campaign updates. Fires whenever a document belonging to a
+ * campaign changes (pledge, receipt, dependency, status update, campaign).
+ */
 export type SubscriptionJobChangesArgs = {
   jobId: Scalars['String']['input'];
 };
@@ -7542,7 +7797,7 @@ export type GetCampaignQueryVariables = Exact<{
 }>;
 
 
-export type GetCampaignQuery = { __typename?: 'Query', DefiUnited_campaign?: { __typename?: 'DefiUnited_PublicCampaign', slug: string, name: string, summary?: string | null, status: DefiUnited_CampaignStatus, incidentDate?: string | null, targetAmount?: string | null, totalPledged: string, totalReceived: string, percentReceived: number, pledgeCount: number, dependenciesBlocking: number, dependenciesResolved: number, riskDisclaimer?: string | null, lastUpdateAt?: string | null, affectedAsset?: { __typename?: 'DefiUnited_PublicAffectedAsset', symbol: string, address?: string | null, chainId: number } | null, contributionAddresses: Array<{ __typename?: 'DefiUnited_PublicContributionAddress', chainId: number, address: string, label?: string | null }>, contributorsPublic: Array<{ __typename?: 'DefiUnited_PublicPledge', contributorDisplayName: string, contributorTrustLevel: string, contributorWebsiteUrl?: string | null, contributorTwitter?: string | null, pledgedAmount: string, receivedAmount?: string | null, assetSymbol: string, status: DefiUnited_PledgeStatus, governanceProposalUrl?: string | null, governancePlatform?: string | null, publicNotes?: string | null }>, dependenciesPublic: Array<{ __typename?: 'DefiUnited_PublicDependency', title: string, description?: string | null, kind: DefiUnited_DependencyKind, status: DefiUnited_DependencyStatus, externalRefUrl?: string | null, externalRefProposalId?: string | null, expectedResolution?: string | null }>, recentUpdates: Array<{ __typename?: 'DefiUnited_PublicStatusUpdate', id: string, publishedAt: string, title: string, body: string, metricsTotalPledged?: string | null, metricsTotalReceived?: string | null, externalAnnouncements: Array<{ __typename?: 'DefiUnited_PublicExternalAnnouncement', platform: string, url: string }> }>, recentReceipts: Array<{ __typename?: 'DefiUnited_PublicReceiptEntry', id: string, txHash: string, blockNumber: number, blockTimestamp: string, fromAddress: string, fromEnsName?: string | null, toAddress: string, assetSymbol: string, assetContractAddress?: string | null, amount: string, ethEquivalentAmount: string, ethPriceUsdAtReceipt: number, reconciliationStatus: string, matchedPledgeId?: string | null }>, recentOnchainTransfers: Array<{ __typename?: 'DefiUnited_PublicReceiptEntry', id: string, txHash: string, blockNumber: number, blockTimestamp: string, fromAddress: string, fromEnsName?: string | null, toAddress: string, assetSymbol: string, assetContractAddress?: string | null, amount: string, ethEquivalentAmount: string, ethPriceUsdAtReceipt: number, reconciliationStatus: string, matchedPledgeId?: string | null }>, onchainLiveBalance?: { __typename?: 'DefiUnited_OnchainLiveBalance', totalEthEquivalent: string, ethPriceUsd: number, fetchedAt: string, perAsset: Array<{ __typename?: 'DefiUnited_OnchainAssetBalance', symbol: string, contractAddress?: string | null, rawBalance: string, formattedAmount: string, ethEquivalent: string }> } | null, pendingReceiptsEthEquivalent?: string | null, externalLinks: Array<{ __typename?: 'DefiUnited_PublicExternalLink', label: string, url: string }> } | null };
+export type GetCampaignQuery = { __typename?: 'Query', DefiUnited_campaign?: { __typename?: 'DefiUnited_PublicCampaign', slug: string, name: string, summary?: string | null, status: DefiUnited_CampaignStatus, incidentDate?: string | null, targetAmount?: string | null, totalPledged: string, totalReceived: string, percentReceived: number, pledgeCount: number, dependenciesBlocking: number, dependenciesResolved: number, riskDisclaimer?: string | null, lastUpdateAt?: string | null, headlineTotalEthEquivalent: string, headlineTotalUsd?: string | null, pendingReceiptsEthEquivalent?: string | null, onchainEngagement: { __typename?: 'DefiUnited_OnchainEngagement', totalTransferCount: number, uniqueSenderCount: number }, affectedAsset?: { __typename?: 'DefiUnited_PublicAffectedAsset', symbol: string, address?: string | null, chainId: number } | null, contributionAddresses: Array<{ __typename?: 'DefiUnited_PublicContributionAddress', chainId: number, address: string, label?: string | null }>, contributorsPublic: Array<{ __typename?: 'DefiUnited_PublicPledge', contributorDisplayName: string, contributorTrustLevel: string, contributorWebsiteUrl?: string | null, contributorTwitter?: string | null, pledgedAmount: string, receivedAmount?: string | null, assetSymbol: string, status: DefiUnited_PledgeStatus, governanceProposalUrl?: string | null, governancePlatform?: string | null, publicNotes?: string | null }>, dependenciesPublic: Array<{ __typename?: 'DefiUnited_PublicDependency', title: string, description?: string | null, kind: DefiUnited_DependencyKind, status: DefiUnited_DependencyStatus, externalRefUrl?: string | null, externalRefProposalId?: string | null, expectedResolution?: string | null }>, recentUpdates: Array<{ __typename?: 'DefiUnited_PublicStatusUpdate', id: string, publishedAt: string, title: string, body: string, metricsTotalPledged?: string | null, metricsTotalReceived?: string | null, externalAnnouncements: Array<{ __typename?: 'DefiUnited_PublicExternalAnnouncement', platform: string, url: string }> }>, recentReceipts: Array<{ __typename?: 'DefiUnited_PublicReceiptEntry', id: string, txHash: string, blockNumber: number, blockTimestamp: string, fromAddress: string, fromEnsName?: string | null, toAddress: string, assetSymbol: string, assetContractAddress?: string | null, amount: string, ethEquivalentAmount: string, ethPriceUsdAtReceipt: number, reconciliationStatus: string, matchedPledgeId?: string | null }>, recentOnchainTransfers: Array<{ __typename?: 'DefiUnited_PublicReceiptEntry', id: string, txHash: string, blockNumber: number, blockTimestamp: string, fromAddress: string, fromEnsName?: string | null, toAddress: string, assetSymbol: string, assetContractAddress?: string | null, amount: string, ethEquivalentAmount: string, ethPriceUsdAtReceipt: number, reconciliationStatus: string, matchedPledgeId?: string | null }>, onchainLiveBalance?: { __typename?: 'DefiUnited_OnchainLiveBalance', totalEthEquivalent: string, ethPriceUsd: number, fetchedAt: string, perAsset: Array<{ __typename?: 'DefiUnited_OnchainAssetBalance', symbol: string, contractAddress?: string | null, rawBalance: string, formattedAmount: string, ethEquivalent: string }> } | null, externalLinks: Array<{ __typename?: 'DefiUnited_PublicExternalLink', label: string, url: string }> } | null };
 
 export type ListCampaignsQueryVariables = Exact<{
   status?: InputMaybe<DefiUnited_CampaignStatus>;

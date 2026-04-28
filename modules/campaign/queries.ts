@@ -24,6 +24,12 @@ export const GET_CAMPAIGN = gql`
       dependenciesResolved
       riskDisclaimer
       lastUpdateAt
+      headlineTotalEthEquivalent
+      headlineTotalUsd
+      onchainEngagement {
+        totalTransferCount
+        uniqueSenderCount
+      }
       affectedAsset {
         symbol
         address

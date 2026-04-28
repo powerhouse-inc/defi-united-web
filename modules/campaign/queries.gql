@@ -14,6 +14,12 @@ query GetCampaign($slug: String!) {
     dependenciesResolved
     riskDisclaimer
     lastUpdateAt
+    headlineTotalEthEquivalent
+    headlineTotalUsd
+    onchainEngagement {
+      totalTransferCount
+      uniqueSenderCount
+    }
     affectedAsset {
       symbol
       address

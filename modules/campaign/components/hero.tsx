@@ -10,6 +10,7 @@ import { ArrowRight, Radio } from 'lucide-react'
 import { useToast } from '@/modules/shared/components/toast'
 import { cn } from '@/modules/shared/lib/cn'
 import { AnimatedNumber } from '@/modules/shared/components/animated-number'
+import { formatEthAmount, formatUsdShort } from '@/modules/shared/lib/format'
 
 const POLL_INTERVAL = 5000
 
@@ -71,6 +72,9 @@ export function CampaignHero({
   const received = docReceived + pendingReceived
   const pledgedPct = target > 0 ? Math.min((pledged / target) * 100, 100) : 0
   const receivedPct = target > 0 ? Math.min((received / target) * 100, 100) : 0
+  const usdShort = formatUsdShort(c.headlineTotalUsd)
+  const engagementCount = c.onchainEngagement?.totalTransferCount ?? 0
+  const uniqueWallets = c.onchainEngagement?.uniqueSenderCount ?? 0
   const incidentDate = c.incidentDate
     ? new Date(c.incidentDate).toLocaleDateString('en-US', {
         month: 'short',
@@ -194,11 +198,60 @@ export function CampaignHero({
           </motion.p>
         ) : null}
 
-        {/* The big numbers — Aave dashboard centerpiece */}
+        {/* HUGE total raised hero — defiunited.world style */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.25 }}
+          transition={{ duration: 0.6, delay: 0.22 }}
+          className="mx-auto mb-12 max-w-3xl text-center"
+        >
+          <div className="mb-3 text-[11px] font-semibold tracking-[0.2em] uppercase text-[--color-ink-muted]">
+            Total raised
+          </div>
+          {usdShort ? (
+            <div
+              className="font-bold leading-none tracking-tight text-7xl sm:text-8xl lg:text-[8rem]"
+              style={{
+                color: 'var(--color-success)',
+                letterSpacing: '-0.04em',
+                textShadow: '0 0 60px rgba(80, 200, 120, 0.25)',
+              }}
+            >
+              ${usdShort}
+            </div>
+          ) : null}
+          <div
+            className={cn(
+              'font-mono font-semibold tracking-tight text-[--color-ink-muted]',
+              usdShort ? 'mt-3 text-2xl sm:text-3xl' : 'text-5xl sm:text-6xl text-[--color-success]',
+            )}
+          >
+            {formatEthAmount(c.headlineTotalEthEquivalent ?? String(received))} ETH
+          </div>
+          {engagementCount > 0 ? (
+            <div className="mt-5 inline-flex items-center gap-4 rounded-full border border-[--color-border] bg-[--color-bg-elevated]/40 px-4 py-2 text-xs text-[--color-ink-soft] backdrop-blur-sm">
+              <span>
+                <span className="font-mono font-semibold text-[--color-ink]">
+                  {engagementCount.toLocaleString()}
+                </span>{' '}
+                Transfers
+              </span>
+              <span className="text-[--color-ink-soft]/60">·</span>
+              <span>
+                <span className="font-mono font-semibold text-[--color-ink]">
+                  {uniqueWallets.toLocaleString()}
+                </span>{' '}
+                Wallets
+              </span>
+            </div>
+          ) : null}
+        </motion.div>
+
+        {/* Supporting stats — pledged / received / target */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
           className="mx-auto mb-10 max-w-4xl"
         >
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-3">
@@ -208,7 +261,6 @@ export function CampaignHero({
               unit="ETH"
               percent={pledgedPct}
               tone="brand"
-              emphasis
             />
             <BigStat
               label="Received"

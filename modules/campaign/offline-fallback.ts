@@ -21,6 +21,13 @@ export const OFFLINE_CAMPAIGN: CampaignDetail = {
   dependenciesResolved: 1,
   riskDisclaimer: "Contributions depend on technical and governance actions by third parties, including KelpDAO reopening withdrawals and Arbitrum Security Council releasing frozen ETH. Success remains uncertain and contributors assume associated risks.",
   lastUpdateAt: "2026-04-27T13:12:59.815Z",
+  headlineTotalEthEquivalent: "102798",
+  headlineTotalUsd: null,
+  onchainEngagement: {
+    __typename: 'DefiUnited_OnchainEngagement',
+    totalTransferCount: 0,
+    uniqueSenderCount: 0,
+  },
   affectedAsset: {
     __typename: 'DefiUnited_PublicAffectedAsset',
     symbol: "rsETH",

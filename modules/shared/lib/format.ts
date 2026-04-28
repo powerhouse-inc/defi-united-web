@@ -13,6 +13,22 @@ export function formatEthAmount(value: string | null | undefined, opts?: { decim
   })
 }
 
+/**
+ * Format a USD numeric string (whole dollars) as a compact display value:
+ * `234246575` → `234.25M`, `1567000000` → `1.57B`, `523` → `523`.
+ * Returns null when the input is missing — caller should hide the figure
+ * rather than show a placeholder.
+ */
+export function formatUsdShort(value: string | null | undefined): string | null {
+  if (value == null || value === '') return null
+  const n = Number(value)
+  if (!Number.isFinite(n) || n < 0) return null
+  if (n >= 1_000_000_000) return `${(n / 1_000_000_000).toFixed(2)}B`
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(2)}M`
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}k`
+  return Math.round(n).toLocaleString()
+}
+
 export function formatPercent(value: number | null | undefined, fractionDigits = 1) {
   if (value == null) return '0%'
   return `${(value * 1).toFixed(fractionDigits)}%`
