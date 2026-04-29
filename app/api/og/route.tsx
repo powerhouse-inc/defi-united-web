@@ -16,7 +16,7 @@ async function loadGoogleFont(family: string, weight: number, text: string): Pro
   return data
 }
 
-function fmtEth(value: string | undefined): string {
+function fmtEth(value: string | null | undefined): string {
   const n = parseFloat(value ?? '0')
   if (!Number.isFinite(n)) return '0'
   if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M'
