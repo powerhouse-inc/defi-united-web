@@ -37,9 +37,9 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 
 # Build-time public env vars — exposed to the client bundle. Override at
 # image-build time with `--build-arg`.
-ARG NEXT_PUBLIC_SWITCHBOARD_URL=https://switchboard.defiunited.w3b.li/graphql
+ARG NEXT_PUBLIC_SWITCHBOARD_URL=https://switchboard.defiunited.space/graphql
 ARG NEXT_PUBLIC_DEFAULT_CAMPAIGN_SLUG=rseth-2026-04
-ARG NEXT_PUBLIC_BASE_URL=https://defiunited.w3b.li
+ARG NEXT_PUBLIC_BASE_URL=https://defiunited.space
 
 ENV NEXT_PUBLIC_SWITCHBOARD_URL=$NEXT_PUBLIC_SWITCHBOARD_URL
 ENV NEXT_PUBLIC_DEFAULT_CAMPAIGN_SLUG=$NEXT_PUBLIC_DEFAULT_CAMPAIGN_SLUG
