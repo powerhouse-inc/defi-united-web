@@ -11,11 +11,11 @@ on:
       switchboard_url:
         description: 'NEXT_PUBLIC_SWITCHBOARD_URL baked into the build'
         required: false
-        default: 'https://switchboard.defiunited.w3b.li/graphql'
+        default: 'https://switchboard.defiunited.space/graphql'
       base_url:
         description: 'NEXT_PUBLIC_BASE_URL baked into the build'
         required: false
-        default: 'https://defiunited.w3b.li'
+        default: 'https://defiunited.space'
 
 env:
   DOCKER_REGISTRY: cr.vetra.io
@@ -69,8 +69,8 @@ jobs:
           INPUT_SWITCHBOARD_URL: ${{ inputs.switchboard_url }}
           INPUT_BASE_URL: ${{ inputs.base_url }}
         run: |
-          SWITCHBOARD_URL="${INPUT_SWITCHBOARD_URL:-https://switchboard.defiunited.w3b.li/graphql}"
-          BASE_URL="${INPUT_BASE_URL:-https://defiunited.w3b.li}"
+          SWITCHBOARD_URL="${INPUT_SWITCHBOARD_URL:-https://switchboard.defiunited.space/graphql}"
+          BASE_URL="${INPUT_BASE_URL:-https://defiunited.space}"
           {
             echo "switchboard_url=${SWITCHBOARD_URL}"
             echo "base_url=${BASE_URL}"
