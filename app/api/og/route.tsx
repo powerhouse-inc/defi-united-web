@@ -1,112 +1,274 @@
-import { NextRequest } from 'next/server'
+import type { NextRequest } from 'next/server'
+import { ImageResponse } from 'next/og'
 import { OFFLINE_CAMPAIGN } from '@/modules/campaign/offline-fallback'
 
 export const runtime = 'edge'
 
-function formatEth(value: string): string {
-  const n = parseFloat(value)
+const W = 1200
+const H = 630
+
+async function loadGoogleFont(family: string, weight: number, text: string): Promise<ArrayBuffer> {
+  const url = `https://fonts.googleapis.com/css2?family=${family.replace(/ /g, '+')}:wght@${weight}&text=${encodeURIComponent(text)}`
+  const css = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } }).then(r => r.text())
+  const match = css.match(/src: url\(([^)]+)\) format\('(?:opentype|truetype|woff2)'\)/)
+  if (!match) throw new Error(`font lookup failed: ${family} ${weight}`)
+  const data = await fetch(match[1]).then(r => r.arrayBuffer())
+  return data
+}
+
+function fmtEth(value: string | undefined): string {
+  const n = parseFloat(value ?? '0')
+  if (!Number.isFinite(n)) return '0'
   if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M'
   if (n >= 1000) return (n / 1000).toFixed(n % 1000 === 0 ? 0 : 1).replace(/\.0$/, '') + 'k'
-  return n.toString()
-}
-
-function escapeXml(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
-}
-
-function buildSvg(campaign: typeof OFFLINE_CAMPAIGN): string {
-  const pledged = parseFloat(campaign.totalPledged ?? '0')
-  const received = parseFloat(campaign.totalReceived ?? '0')
-  const target = parseFloat(campaign.targetAmount ?? '1')
-  const pct = target > 0 ? Math.round((pledged / target) * 100) : 0
-  const barWidth = Math.round((pct / 100) * 780)
-  const receivedWidth = Math.round(((received / target) * 100 / 100) * 780)
-
-  const name = escapeXml(campaign.name)
-  const summaryText = escapeXml((campaign.summary ?? '').slice(0, 130))
-  const summarySuffix = (campaign.summary?.length ?? 0) > 130 ? '…' : ''
-
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#f7f8fb"/>
-      <stop offset="100%" stop-color="#eaeefe"/>
-    </linearGradient>
-    <linearGradient id="bar" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#2742f5"/>
-      <stop offset="100%" stop-color="#6366f1"/>
-    </linearGradient>
-    <linearGradient id="recv" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#16a34a"/>
-      <stop offset="100%" stop-color="#4ade80"/>
-    </linearGradient>
-  </defs>
-
-  <rect width="1200" height="630" fill="url(#bg)" rx="0"/>
-
-  <rect x="0" y="0" width="1200" height="6" fill="#2742f5"/>
-
-  <rect x="60" y="38" width="40" height="40" rx="10" fill="#2742f5"/>
-  <text x="80" y="65" text-anchor="middle" fill="#fff" font-family="system-ui,sans-serif" font-size="14" font-weight="700">DU</text>
-  <text x="115" y="62" fill="#0a0e1a" font-family="system-ui,sans-serif" font-size="17" font-weight="600">DeFi United</text>
-
-  <text x="60" y="130" fill="#0a0e1a" font-family="system-ui,sans-serif" font-size="52" font-weight="700">${name}</text>
-  <text x="60" y="175" fill="#4a5568" font-family="system-ui,sans-serif" font-size="20">${summaryText}${summarySuffix}</text>
-
-  <text x="60" y="270" fill="#6b7280" font-family="system-ui,sans-serif" font-size="13" font-weight="500" text-transform="uppercase">PLEDGED</text>
-  <text x="60" y="330" fill="#0a0e1a" font-family="system-ui,sans-serif" font-size="64" font-weight="700">${formatEth(campaign.totalPledged ?? '0')}<tspan fill="#6b7280" font-size="32" font-weight="500"> ETH</tspan></text>
-
-  <text x="520" y="310" fill="#4a5568" font-family="system-ui,sans-serif" font-size="20">of ${formatEth(campaign.targetAmount ?? '0')} ETH target</text>
-
-  <rect x="60" y="370" width="780" height="20" rx="10" fill="#e5e7eb"/>
-  <rect x="60" y="370" width="${receivedWidth}" height="20" rx="10" fill="url(#recv)" opacity="0.4"/>
-  <rect x="60" y="370" width="${barWidth}" height="20" rx="10" fill="url(#bar)"/>
-
-  <text x="855" y="393" fill="#2742f5" font-family="system-ui,sans-serif" font-size="24" font-weight="700">${pct}%</text>
-
-  <g transform="translate(60, 440)">
-    <rect x="0" y="0" width="170" height="72" rx="12" fill="#eaeefe" stroke="#2742f5" stroke-width="1" stroke-opacity="0.2"/>
-    <text x="16" y="28" fill="#6b7280" font-family="system-ui,sans-serif" font-size="11" font-weight="500">CONTRIBUTORS</text>
-    <text x="16" y="56" fill="#2742f5" font-family="system-ui,sans-serif" font-size="28" font-weight="700">${campaign.pledgeCount}</text>
-  </g>
-
-  <g transform="translate(250, 440)">
-    <rect x="0" y="0" width="170" height="72" rx="12" fill="#dcfce7" stroke="#16a34a" stroke-width="1" stroke-opacity="0.2"/>
-    <text x="16" y="28" fill="#6b7280" font-family="system-ui,sans-serif" font-size="11" font-weight="500">RECEIVED</text>
-    <text x="16" y="56" fill="#16a34a" font-family="system-ui,sans-serif" font-size="28" font-weight="700">${formatEth(campaign.totalReceived ?? '0')}<tspan fill="#6b7280" font-size="16" font-weight="500"> ETH</tspan></text>
-  </g>
-
-  <g transform="translate(440, 440)">
-    <rect x="0" y="0" width="170" height="72" rx="12" fill="#fef3c7" stroke="#d97706" stroke-width="1" stroke-opacity="0.2"/>
-    <text x="16" y="28" fill="#6b7280" font-family="system-ui,sans-serif" font-size="11" font-weight="500">DEPENDENCIES</text>
-    <text x="16" y="56" fill="#d97706" font-family="system-ui,sans-serif" font-size="28" font-weight="700">${campaign.dependenciesResolved}/${(campaign.dependenciesBlocking ?? 0) + campaign.dependenciesResolved}</text>
-  </g>
-
-  <g transform="translate(630, 440)">
-    <rect x="0" y="0" width="210" height="72" rx="12" fill="#e5e7eb" stroke="#d1d5db" stroke-width="1"/>
-    <text x="16" y="28" fill="#6b7280" font-family="system-ui,sans-serif" font-size="11" font-weight="500">STATUS</text>
-    <text x="16" y="56" fill="#0a0e1a" font-family="system-ui,sans-serif" font-size="28" font-weight="700">${campaign.status === 'ACTIVE' ? '● Live' : campaign.status}</text>
-  </g>
-
-  <text x="60" y="570" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="14">defiunited.xyz</text>
-  <text x="1140" y="570" text-anchor="end" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="14">Powered by Powerhouse</text>
-</svg>`
-}
-
-function resolveCampaign(slug: string | null | undefined) {
-  void slug
-  return OFFLINE_CAMPAIGN
+  return Math.round(n).toLocaleString('en-US')
 }
 
 export async function GET(request: NextRequest) {
-  const slug = request.nextUrl.searchParams.get('slug')
-  const campaign = resolveCampaign(slug)
-  const svg = buildSvg(campaign)
+  void request.nextUrl.searchParams.get('slug')
+  const c = OFFLINE_CAMPAIGN
 
-  return new Response(svg, {
-    headers: {
-      'Content-Type': 'image/svg+xml',
-      'Cache-Control': 'public, max-age=60, s-maxage=300',
+  const name = c.name
+  const summary = (c.summary ?? '').slice(0, 130) + ((c.summary?.length ?? 0) > 130 ? '…' : '')
+  const pledged = fmtEth(c.totalPledged)
+  const target = fmtEth(c.targetAmount)
+  const pledgedNum = parseFloat(c.totalPledged ?? '0')
+  const targetNum = parseFloat(c.targetAmount ?? '1')
+  const pct = targetNum > 0 ? Math.round((pledgedNum / targetNum) * 100) : 0
+  const isActive = c.status === 'ACTIVE'
+
+  const allText = `DeFi United Coalition ${name} ${summary} TOTAL RAISED ${pledged} ETH of ${target} target ${pct}% pledged Live · Active campaign defiunited.space Built on Powerhouse 0123456789·•$,.`
+
+  const [m500, m700, m800] = await Promise.all([
+    loadGoogleFont('Manrope', 500, allText),
+    loadGoogleFont('Manrope', 700, allText),
+    loadGoogleFont('Manrope', 800, allText),
+  ])
+
+  return new ImageResponse(
+    (
+      <div
+        style={{
+          width: W,
+          height: H,
+          display: 'flex',
+          flexDirection: 'column',
+          padding: '64px 72px',
+          fontFamily: 'Manrope',
+          color: '#0a0b14',
+          background:
+            'linear-gradient(135deg, #fafafe 0%, #efe6fe 45%, #fde6f1 100%)',
+          position: 'relative',
+        }}
+      >
+        {/* Soft brand bloom */}
+        <div
+          style={{
+            position: 'absolute',
+            top: -160,
+            right: -160,
+            width: 520,
+            height: 520,
+            borderRadius: 9999,
+            background:
+              'radial-gradient(closest-side, rgba(230, 62, 157, 0.28), rgba(230, 62, 157, 0))',
+            display: 'flex',
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            bottom: -180,
+            left: -120,
+            width: 480,
+            height: 480,
+            borderRadius: 9999,
+            background:
+              'radial-gradient(closest-side, rgba(142, 92, 255, 0.30), rgba(142, 92, 255, 0))',
+            display: 'flex',
+          }}
+        />
+
+        {/* Brand: accent rule + wordmark */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div
+            style={{
+              width: 6,
+              height: 36,
+              borderRadius: 3,
+              background:
+                'linear-gradient(180deg, #8e5cff 0%, #e63e9d 100%)',
+              display: 'flex',
+            }}
+          />
+          <div
+            style={{
+              fontSize: 30,
+              fontWeight: 800,
+              letterSpacing: '-0.02em',
+            }}
+          >
+            DeFi United
+          </div>
+        </div>
+
+        {/* Status pill */}
+        <div
+          style={{
+            marginTop: 56,
+            alignSelf: 'flex-start',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            padding: '8px 18px',
+            borderRadius: 999,
+            border: '1px solid rgba(142, 92, 255, 0.30)',
+            background: 'rgba(255, 255, 255, 0.65)',
+            fontSize: 14,
+            fontWeight: 700,
+            letterSpacing: '0.20em',
+            textTransform: 'uppercase',
+            color: '#7a3fdb',
+          }}
+        >
+          <div
+            style={{
+              width: 8,
+              height: 8,
+              borderRadius: 999,
+              background: isActive ? '#22c55e' : '#9ca3af',
+              display: 'flex',
+            }}
+          />
+          {isActive ? 'Live · Coalition active' : c.status}
+        </div>
+
+        {/* Headline */}
+        <div
+          style={{
+            marginTop: 22,
+            fontSize: 104,
+            fontWeight: 800,
+            letterSpacing: '-0.045em',
+            lineHeight: 1,
+          }}
+        >
+          {name}
+        </div>
+
+        {/* Summary */}
+        <div
+          style={{
+            marginTop: 22,
+            fontSize: 24,
+            fontWeight: 500,
+            color: '#4d5169',
+            lineHeight: 1.35,
+            maxWidth: 900,
+          }}
+        >
+          {summary}
+        </div>
+
+        {/* Footer row: total raised + url */}
+        <div
+          style={{
+            marginTop: 'auto',
+            display: 'flex',
+            alignItems: 'flex-end',
+            justifyContent: 'space-between',
+          }}
+        >
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <div
+              style={{
+                fontSize: 13,
+                fontWeight: 700,
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+                color: '#6e7390',
+              }}
+            >
+              Total raised
+            </div>
+            <div
+              style={{
+                marginTop: 6,
+                display: 'flex',
+                alignItems: 'baseline',
+                gap: 10,
+                fontSize: 72,
+                fontWeight: 800,
+                letterSpacing: '-0.03em',
+                lineHeight: 1,
+              }}
+            >
+              {pledged}
+              <span
+                style={{
+                  fontSize: 32,
+                  fontWeight: 700,
+                  color: '#6e7390',
+                  letterSpacing: '-0.01em',
+                }}
+              >
+                ETH
+              </span>
+            </div>
+            <div
+              style={{
+                marginTop: 8,
+                fontSize: 16,
+                color: '#6e7390',
+                fontWeight: 500,
+              }}
+            >
+              {`of ${target} ETH target · ${pct}% pledged`}
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'flex-end',
+            }}
+          >
+            <div
+              style={{
+                fontSize: 20,
+                fontWeight: 800,
+                letterSpacing: '-0.015em',
+              }}
+            >
+              defiunited.space
+            </div>
+            <div
+              style={{
+                marginTop: 4,
+                fontSize: 13,
+                color: '#6e7390',
+                letterSpacing: '0.04em',
+                fontWeight: 500,
+              }}
+            >
+              Built on Powerhouse
+            </div>
+          </div>
+        </div>
+      </div>
+    ),
+    {
+      width: W,
+      height: H,
+      fonts: [
+        { name: 'Manrope', data: m500, weight: 500, style: 'normal' },
+        { name: 'Manrope', data: m700, weight: 700, style: 'normal' },
+        { name: 'Manrope', data: m800, weight: 800, style: 'normal' },
+      ],
+      headers: {
+        'Cache-Control': 'public, max-age=300, s-maxage=600',
+      },
     },
-  })
+  )
 }
