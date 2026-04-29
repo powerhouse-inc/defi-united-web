@@ -23,15 +23,15 @@ function buildFaqs(campaign: CampaignDetail): FaqItem[] {
   return [
     {
       q: 'What is DeFi United?',
-      a: `DeFi United is a coordinated relief effort led by Aave service providers following ${incidentRef}. Major protocols, foundations and individuals pledge funds toward a coordinated remediation, with every pledge, dependency and on-chain receipt tracked publicly. The DAO operates the platform — ${campaignName} is its first campaign.`,
+      a: `DeFi United is a coordinated relief effort led by Aave service providers following ${incidentRef}. Major protocols, foundations and individuals pledge funds toward a coordinated remediation, with every pledge, dependency and on-chain receipt tracked publicly. The coalition operates the platform — ${campaignName} is its first campaign.`,
     },
     {
       q: 'How will the contributions be used?',
       a: `The ETH and stablecoins contributed are used to restore ${asset}'s backing, helping normalise market conditions across the protocols affected by the incident. A public distribution plan governs how the recovered funds reach affected holders.`,
     },
     {
-      q: 'Will the DAO run more campaigns?',
-      a: `Yes. The DAO is the platform; ${campaignName} is the first incident it coordinates. The same document models, editors and subgraphs that run this campaign are reusable for any future major DeFi incident.`,
+      q: 'Will more campaigns run on this platform?',
+      a: `Yes. DeFi United is the platform; ${campaignName} is the first incident it coordinates. The same document models, editors and subgraphs that run this campaign are reusable for any future major DeFi incident.`,
     },
     {
       q: 'Are pledges binding?',

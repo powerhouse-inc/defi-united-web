@@ -47,20 +47,15 @@ function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-[--color-border] bg-[--color-bg]/75 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-        <Link href="/" className="flex items-center gap-2.5 group">
+        <Link href="/" className="flex items-center gap-2.5 group" aria-label="DeFi United — home">
           <span
-            className="grid h-8 w-8 place-items-center rounded-lg text-[10px] font-bold text-white transition-transform group-hover:scale-110"
+            aria-hidden="true"
+            className="block h-5 w-[3px] rounded-full transition-transform group-hover:scale-y-110"
             style={{
-              background: 'linear-gradient(135deg, #8e5cff 0%, #e63e9d 100%)',
-              boxShadow: '0 4px 14px -4px rgba(142, 92, 255, 0.6)',
+              background: 'linear-gradient(180deg, #8e5cff 0%, #e63e9d 100%)',
             }}
-          >
-            DU
-          </span>
-          <span className="flex flex-col leading-none">
-            <span className="text-sm font-bold tracking-tight">DeFi United</span>
-            <span className="text-[9px] font-medium uppercase tracking-[0.18em] text-[--color-ink-soft]">DAO</span>
-          </span>
+          />
+          <span className="text-base font-extrabold tracking-tight">DeFi United</span>
         </Link>
 
         {/* Desktop nav */}
@@ -198,19 +193,15 @@ function SiteFooter() {
 
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
               <span
-                className="grid h-7 w-7 place-items-center rounded-lg text-[10px] font-bold text-white"
+                aria-hidden="true"
+                className="block h-5 w-[3px] rounded-full"
                 style={{
-                  background: 'linear-gradient(135deg, #8e5cff 0%, #e63e9d 100%)',
+                  background: 'linear-gradient(180deg, #8e5cff 0%, #e63e9d 100%)',
                 }}
-              >
-                DU
-              </span>
-              <span className="flex flex-col leading-none">
-                <span className="text-sm font-bold tracking-tight">DeFi United</span>
-                <span className="text-[9px] font-medium uppercase tracking-[0.18em] text-[--color-ink-soft]">DAO</span>
-              </span>
+              />
+              <span className="text-base font-extrabold tracking-tight">DeFi United</span>
             </div>
             <p className="mt-3 max-w-xs text-xs leading-relaxed text-[--color-ink-soft]">
               Coordinated relief for DeFi incidents. Public data, on-chain receipts, verifiable pledges.

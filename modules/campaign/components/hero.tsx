@@ -163,7 +163,7 @@ export function CampaignHero({
         >
           <span className="inline-flex items-center gap-2 rounded-full border border-[--color-brand-border] bg-[--color-brand-soft] px-3 py-1 text-[11px] font-medium tracking-wider uppercase text-[--color-brand]">
             <Radio className="size-3" />
-            DeFi United DAO
+            DeFi United Coalition
           </span>
           {c.affectedAsset?.symbol ? (
             <span className="inline-flex items-center gap-1.5 rounded-full border border-[--color-border] bg-[--color-bg-elevated]/60 px-3 py-1 text-[10px] font-medium uppercase tracking-wider text-[--color-ink-soft] backdrop-blur-sm">

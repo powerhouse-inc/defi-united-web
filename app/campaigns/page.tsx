@@ -38,7 +38,7 @@ export default async function CampaignsIndexPage() {
       <div className="mb-12 max-w-2xl">
         <span className="inline-flex items-center gap-2 rounded-full border border-[--color-brand-border] bg-[--color-brand-soft] px-3 py-1 text-[11px] font-medium uppercase tracking-wider text-[--color-brand]">
           <Radio className="size-3" />
-          DeFi United DAO
+          DeFi United Coalition
         </span>
         <h1
           className="mt-4 text-4xl font-bold tracking-tight sm:text-5xl"
@@ -47,8 +47,8 @@ export default async function CampaignsIndexPage() {
           <span className="gradient-text">Coordinated relief campaigns</span>
         </h1>
         <p className="mt-4 text-base leading-relaxed text-[--color-ink-muted]">
-          DeFi United is a DAO that coordinates industry-wide responses to DeFi
-          incidents. Each campaign is a public, verifiable coalition of
+          DeFi United is a coalition that coordinates industry-wide responses
+          to DeFi incidents. Each campaign is a public, verifiable group of
           protocols, foundations, and individuals — pooling pledges and
           tracking governance dependencies until users are made whole.
         </p>
@@ -172,9 +172,9 @@ export default async function CampaignsIndexPage() {
         </div>
       </div>
 
-      {/* Charter / DAO mission */}
+      {/* Coalition charter */}
       <Card variant="plain" className="border-[--color-brand-border]/40">
-        <CardHeader title="DAO charter" description="What we coordinate, and how." />
+        <CardHeader title="Coalition charter" description="What we coordinate, and how." />
         <CardBody>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             <div>

@@ -1,4 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="8" fill="#2742f5"/>
-  <text x="16" y="22" text-anchor="middle" fill="#ffffff" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="700">DU</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#8e5cff"/>
+      <stop offset="100%" stop-color="#e63e9d"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="7" fill="#0a0b14"/>
+  <rect x="6" y="7" width="2.5" height="18" rx="1.25" fill="url(#g)"/>
+  <text x="20" y="22" text-anchor="middle" fill="#ffffff" font-family="ui-sans-serif, -apple-system, Manrope, system-ui, sans-serif" font-size="12" font-weight="800" letter-spacing="-0.4">DU</text>
 </svg>
