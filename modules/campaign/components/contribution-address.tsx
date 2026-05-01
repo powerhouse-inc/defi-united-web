@@ -66,7 +66,7 @@ export function ContributionAddressCard({
   const chainLabel = CHAIN_LABELS[primary.chainId] ?? `Chain ${primary.chainId}`
 
   return (
-    <Card variant="accent">
+    <Card tier="inset" className="border-[--color-brand-border]/40">
       <CardHeader
         title="Contribute"
         description="Send ETH or stablecoins to the verified treasury address."

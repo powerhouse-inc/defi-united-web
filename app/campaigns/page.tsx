@@ -77,7 +77,7 @@ export default async function CampaignsIndexPage() {
                 href={`/campaigns/${c.slug}`}
                 className="group block"
               >
-                <Card variant="glass" className="h-full transition-all group-hover:border-[--color-brand-border] group-hover:shadow-[0_20px_60px_-12px_rgba(142,92,255,0.4)]">
+                <Card className="h-full transition-shadow group-hover:shadow-[0_20px_60px_-12px_rgba(142,92,255,0.18)]">
                   <CardBody className="p-6 sm:p-7">
                     <div className="mb-4 flex items-start justify-between">
                       <div className="flex items-center gap-2">
@@ -145,7 +145,7 @@ export default async function CampaignsIndexPage() {
           })}
 
           {/* "Future campaigns" placeholder card */}
-          <Card variant="plain" className="border-dashed bg-[--color-bg-elevated]/30">
+          <Card className="bg-[--color-bg-elevated]/40">
             <CardBody className="flex h-full flex-col items-start justify-between gap-4 p-6 sm:p-7">
               <div>
                 <span className="font-mono text-[10px] uppercase tracking-wider text-[--color-ink-soft]">
@@ -173,7 +173,7 @@ export default async function CampaignsIndexPage() {
       </div>
 
       {/* Coalition charter */}
-      <Card variant="plain" className="border-[--color-brand-border]/40">
+      <Card>
         <CardHeader title="Coalition charter" description="What we coordinate, and how." />
         <CardBody>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">

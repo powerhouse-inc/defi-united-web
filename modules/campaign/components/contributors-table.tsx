@@ -155,7 +155,7 @@ export function ContributorsTable({
 
   return (
     <div className="flex flex-col gap-5">
-      <Card>
+      <Card tier="inset">
         <CardHeader
           title="Key contributors"
           description="Direct commitments and on-chain receipts — no further governance step needed."
@@ -177,7 +177,7 @@ export function ContributorsTable({
         )}
       </Card>
 
-      <Card>
+      <Card tier="inset">
         <CardHeader
           title="Awaiting ratification"
           description="DAO pledges pending on-chain or off-chain governance."

@@ -25,7 +25,7 @@ export function EmbedSnippet({ slug }: { slug: string }) {
   -d '${JSON.stringify({ query: QUERY.replace(/\n/g, ' ') })}'`
 
   return (
-    <Card>
+    <Card tier="inset">
       <CardHeader
         title="Embed live data anywhere"
         description="Every number on this page is one public GraphQL query. Drop it into Notion, Substack, or a custom status page — no API key needed."
