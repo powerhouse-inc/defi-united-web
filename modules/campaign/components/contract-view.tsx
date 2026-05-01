@@ -115,9 +115,9 @@ export function ContractView({
             {stats.map((stat, i) => {
               const Icon = stat.icon
               const toneBorder: Record<string, string> = {
-                brand: 'border border-[--color-brand-border] bg-[--color-brand-soft]',
-                success: 'border border-[--color-success-border] bg-[--color-success-soft]',
-                warning: 'border border-[--color-warning-border] bg-[--color-warning-soft]',
+                brand: 'brand-edge-soft',
+                success: 'brand-edge-tone tone-success',
+                warning: 'brand-edge-tone tone-warning',
                 neutral: 'brand-edge',
               }
               const toneText: Record<string, string> = {

@@ -169,8 +169,8 @@ function TrustSignal({
   body: string
 }) {
   return (
-    <div className="flex items-start gap-2.5 rounded-xl border border-[--color-border-soft] bg-[--color-bg-elevated]/40 px-3 py-2.5">
-      <span className="mt-0.5 inline-flex size-7 shrink-0 items-center justify-center rounded-lg border border-[--color-brand-border] bg-[--color-brand-soft] text-[--color-brand-glow]">
+    <div className="brand-edge flex items-start gap-2.5 rounded-xl px-3 py-2.5">
+      <span className="brand-edge-soft mt-0.5 inline-flex size-7 shrink-0 items-center justify-center rounded-lg text-[--color-brand-glow]">
         <Icon className="size-3.5" />
       </span>
       <div className="min-w-0">

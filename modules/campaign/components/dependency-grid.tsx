@@ -46,9 +46,9 @@ function DependencyTile({ dep }: { dep: Dep }) {
       role={dep.externalRefUrl ? 'button' : undefined}
       onKeyDown={dep.externalRefUrl ? handleKeyDown : undefined}
       className={cn(
-        'rounded-xl border border-[--color-border] border-l-4 p-4 transition-all',
+        'rounded-xl border-l-4 p-4 transition-all',
         'cursor-pointer select-none',
-        'hover:border-[--color-brand-border] hover:scale-[1.01] hover:shadow-[0_8px_24px_-8px_rgba(142,92,255,0.4)] active:scale-[0.99]',
+        'hover:scale-[1.01] hover:shadow-[0_8px_24px_-8px_rgba(142,92,255,0.4)] active:scale-[0.99]',
         'focus:outline-none focus-visible:ring-2 focus-visible:ring-[--color-brand] focus-visible:ring-offset-2',
         borderClass,
       )}

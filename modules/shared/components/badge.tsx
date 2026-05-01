@@ -9,20 +9,20 @@ type Tone =
   | 'brand'
   | 'accent'
 
+/**
+ * All tones use the brand gradient stroke (.brand-edge*) so badges
+ * read as the same family of pills. Tone is conveyed by text colour
+ * and the soft-tinted padding-box fill, not by a separately-coloured
+ * border.
+ */
 const toneClass: Record<Tone, string> = {
-  neutral:
-    'bg-[--color-border-soft] text-[--color-ink-muted] border-[--color-border]',
-  success:
-    'bg-[--color-success-soft] text-[--color-success] border-[--color-success-border]',
-  warning:
-    'bg-[--color-warning-soft] text-[--color-warning] border-[--color-warning-border]',
-  info: 'bg-[--color-info-soft] text-[--color-info] border-[--color-info-border]',
-  danger:
-    'bg-[--color-danger-soft] text-[--color-danger] border-[--color-danger-border]',
-  brand:
-    'bg-[--color-brand-soft] text-[--color-brand] border-[--color-brand-border]',
-  accent:
-    'bg-[--color-accent-soft] text-[--color-accent] border-[color:rgba(230,62,157,0.3)]',
+  neutral: 'brand-edge text-[--color-ink-muted]',
+  success: 'brand-edge-tone tone-success text-[--color-success]',
+  warning: 'brand-edge-tone tone-warning text-[--color-warning]',
+  info: 'brand-edge-tone tone-info text-[--color-info]',
+  danger: 'brand-edge-tone tone-danger text-[--color-danger]',
+  brand: 'brand-edge-soft text-[--color-brand]',
+  accent: 'brand-edge-accent text-[--color-accent]',
 }
 
 export function Badge({
@@ -37,7 +37,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium tracking-tight',
+        'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium tracking-tight',
         toneClass[tone],
         className,
       )}

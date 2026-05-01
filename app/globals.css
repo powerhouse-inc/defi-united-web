@@ -23,7 +23,7 @@
      when these tokens are used inline (border-b dividers, ticker
      section edges, header/footer chrome). */
   --color-border: rgba(142, 92, 255, 0.22);
-  --color-border-soft: rgba(142, 92, 255, 0.10);
+  --color-border-soft: rgba(142, 92, 255, 0.16);
   --color-border-strong: rgba(142, 92, 255, 0.32);
 
   /* Surface tokens — gradient fill for the canonical .glass surface and
@@ -87,7 +87,7 @@
 
   /* Brand-tinted borders, light variant. */
   --color-border: rgba(105, 54, 220, 0.18);
-  --color-border-soft: rgba(105, 54, 220, 0.08);
+  --color-border-soft: rgba(105, 54, 220, 0.13);
   --color-border-strong: rgba(105, 54, 220, 0.28);
 
   /* Light variant of the surface gradient + brand-stroke. The base/tail
@@ -232,6 +232,42 @@ main, header, footer {
     var(--gradient-border-image) border-box;
   border: 1px solid transparent;
 }
+
+/* Brand-tinted variant — same gradient stroke, but the padding-box
+   fill is the brand-soft tint. Used by Badge brand tone, eyebrow
+   pills, and other brand-coloured chips. */
+.brand-edge-soft {
+  background:
+    linear-gradient(180deg, var(--color-brand-soft), var(--color-brand-soft))
+      padding-box,
+    var(--gradient-border-image) border-box;
+  border: 1px solid transparent;
+}
+
+/* Accent-tinted variant — magenta fill, same gradient stroke. */
+.brand-edge-accent {
+  background:
+    linear-gradient(180deg, var(--color-accent-soft), var(--color-accent-soft))
+      padding-box,
+    var(--gradient-border-image) border-box;
+  border: 1px solid transparent;
+}
+
+/* Tone-tinted variant — fill via --tone-fill custom property so the
+   single utility serves success/warning/info/danger. Apply alongside
+   `.tone-success` etc. (or set --tone-fill inline). Same gradient
+   stroke as .brand-edge so the pill reads as the same family. */
+.brand-edge-tone {
+  background:
+    linear-gradient(180deg, var(--tone-fill, transparent), var(--tone-fill, transparent))
+      padding-box,
+    var(--gradient-border-image) border-box;
+  border: 1px solid transparent;
+}
+.tone-success { --tone-fill: var(--color-success-soft); }
+.tone-warning { --tone-fill: var(--color-warning-soft); }
+.tone-info { --tone-fill: var(--color-info-soft); }
+.tone-danger { --tone-fill: var(--color-danger-soft); }
 
 /* Brand glow utility — for the hero centerpiece */
 .glow-brand {

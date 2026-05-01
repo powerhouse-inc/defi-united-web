@@ -161,7 +161,7 @@ export function CampaignHero({
           transition={{ duration: 0.4, delay: 0.1 }}
           className="mb-4 flex flex-wrap items-center justify-center gap-2"
         >
-          <span className="inline-flex items-center gap-2 rounded-full border border-[--color-brand-border] bg-[--color-brand-soft] px-3 py-1 text-[11px] font-medium tracking-wider uppercase text-[--color-brand]">
+          <span className="brand-edge-soft inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-medium tracking-wider uppercase text-[--color-brand]">
             <Radio className="size-3" />
             DeFi United Coalition
           </span>

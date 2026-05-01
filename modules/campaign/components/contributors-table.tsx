@@ -169,7 +169,7 @@ export function ContributorsTable({
             />
           </CardBody>
         ) : (
-          <ul className="divide-y divide-[--color-border-soft]">
+          <ul className="divide-y divide-[--color-border]">
             {confirmed.map((p, i) => (
               <PledgeRow key={`${p.contributorDisplayName}-${i}`} pledge={p} index={i} />
             ))}
@@ -191,7 +191,7 @@ export function ContributorsTable({
             />
           </CardBody>
         ) : (
-          <ul className="divide-y divide-[--color-border-soft]">
+          <ul className="divide-y divide-[--color-border]">
             {pending.map((p, i) => (
               <PledgeRow key={`${p.contributorDisplayName}-${i}`} pledge={p} index={i} />
             ))}
