@@ -87,7 +87,7 @@ export function Faq({
         </CardBody>
       </Card>
       {riskDisclaimer ? (
-        <Card tier="inset" className="border-[--color-warning-border] bg-[--color-warning-soft]">
+        <Card className="border-[--color-warning-border] bg-[--color-warning-soft]">
           <CardHeader title="Risk disclaimer" />
           <CardBody>
             <p className="text-sm leading-relaxed text-[--color-ink-muted]">{riskDisclaimer}</p>

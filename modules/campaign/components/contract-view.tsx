@@ -66,7 +66,7 @@ export function ContractView({
 
   return (
     <Reveal delay={0.05}>
-      <Card tier="inset">
+      <Card>
         <CardHeader
           title="Live treasury"
           description="Total raised on-chain — every receipt is verifiable."

@@ -87,7 +87,7 @@ export function DependencyGrid({
   blocking: number
 }) {
   return (
-    <Card tier="inset">
+    <Card>
       <CardHeader
         title="Dependencies"
         description="External actions the campaign needs to clear before pledges can land."

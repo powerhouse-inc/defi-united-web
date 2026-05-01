@@ -354,9 +354,9 @@ function BigStat({
   return (
     <div
       className={cn(
-        'relative overflow-hidden rounded-xl border border-[--color-border-soft] bg-[--color-bg] px-5 py-5',
+        'glass relative overflow-hidden rounded-2xl px-5 py-5',
         emphasis &&
-          'sm:scale-[1.03] sm:-mt-1 sm:border-[--color-brand-border]/50 sm:shadow-[0_20px_60px_-10px_rgba(142,92,255,0.18)]',
+          'sm:scale-[1.03] sm:-mt-1 sm:shadow-[0_20px_60px_-10px_rgba(142,92,255,0.35)]',
       )}
     >
       {emphasis ? (

@@ -1,34 +1,22 @@
 import { cn } from '@/modules/shared/lib/cn'
 
 /**
- * Surface tier system. Two primitives, one rule:
- * - `section` (default) is the canonical content surface. No border;
- *   relies on `--color-bg-elevated` contrast against the page background.
- *   Use for marketing blocks, cards on landing pages, FAQ groups.
- * - `inset` is the only tier that carries a border. Use for dense data
- *   containers — tables, code blocks, address pills, callouts. Sits one
- *   step down (`--color-bg`) so it reads as nested inside its Section.
+ * Single canonical surface — semi-translucent glass with a hairline
+ * border and a soft shadow. Used uniformly across the app so that
+ * cards, panels and data containers all read as the same surface.
+ *
+ * Callouts (warning, brand) override `className` to tint the border
+ * and bg — they remain a single Card surface, just a coloured one.
  */
 export function Card({
   children,
   className,
-  tier = 'section',
 }: {
   children: React.ReactNode
   className?: string
-  tier?: 'section' | 'inset'
 }) {
   return (
-    <div
-      className={cn(
-        'overflow-hidden',
-        tier === 'section' &&
-          'rounded-2xl bg-[--color-bg-elevated] shadow-[var(--shadow-section)]',
-        tier === 'inset' &&
-          'rounded-xl border border-[--color-border-soft] bg-[--color-bg]',
-        className,
-      )}
-    >
+    <div className={cn('glass overflow-hidden rounded-2xl', className)}>
       {children}
     </div>
   )
