@@ -18,9 +18,13 @@
   --color-ink-muted: #9ea2bd;
   --color-ink-soft: #6a6e89;
 
-  --color-border: #232844;
-  --color-border-soft: #1a1d33;
-  --color-border-strong: #2e3457;
+  /* Brand-tinted borders so all flat 1px hairlines match the gradient
+     stroke used by .glass / .brand-edge. Keeps the design coherent
+     when these tokens are used inline (border-b dividers, ticker
+     section edges, header/footer chrome). */
+  --color-border: rgba(142, 92, 255, 0.22);
+  --color-border-soft: rgba(142, 92, 255, 0.10);
+  --color-border-strong: rgba(142, 92, 255, 0.32);
 
   /* Surface tokens — gradient fill for the canonical .glass surface and
      a brand-gradient stroke that replaces flat grey borders. The combo
@@ -81,9 +85,10 @@
   --color-ink-muted: #4d5169;
   --color-ink-soft: #6e7390;
 
-  --color-border: #e8e9f1;
-  --color-border-soft: #f1f2f8;
-  --color-border-strong: #d8dae6;
+  /* Brand-tinted borders, light variant. */
+  --color-border: rgba(105, 54, 220, 0.18);
+  --color-border-soft: rgba(105, 54, 220, 0.08);
+  --color-border-strong: rgba(105, 54, 220, 0.28);
 
   /* Light variant of the surface gradient + brand-stroke. The base/tail
      are nearly white but the brand-gradient stroke still reads. */
