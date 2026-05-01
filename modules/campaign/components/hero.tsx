@@ -166,11 +166,11 @@ export function CampaignHero({
             DeFi United Coalition
           </span>
           {c.affectedAsset?.symbol ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[--color-border] bg-[--color-bg-elevated]/60 px-3 py-1 text-[10px] font-medium uppercase tracking-wider text-[--color-ink-soft] backdrop-blur-sm">
+            <span className="brand-edge inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-medium uppercase tracking-wider text-[--color-ink-soft] backdrop-blur-sm">
               Affected asset · {c.affectedAsset.symbol}
             </span>
           ) : null}
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[--color-border] bg-[--color-bg-elevated]/60 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-[--color-ink-soft] backdrop-blur-sm">
+          <span className="brand-edge inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-[--color-ink-soft] backdrop-blur-sm">
             {c.slug}
           </span>
         </motion.div>
@@ -229,7 +229,7 @@ export function CampaignHero({
             {formatEthAmount(c.headlineTotalEthEquivalent ?? String(received))} ETH
           </div>
           {engagementCount > 0 ? (
-            <div className="mt-5 inline-flex items-center gap-4 rounded-full border border-[--color-border] bg-[--color-bg-elevated]/40 px-4 py-2 text-xs text-[--color-ink-soft] backdrop-blur-sm">
+            <div className="brand-edge mt-5 inline-flex items-center gap-4 rounded-full px-4 py-2 text-xs text-[--color-ink-soft] backdrop-blur-sm">
               <span>
                 <span className="font-mono font-semibold text-[--color-ink]">
                   {engagementCount.toLocaleString()}
@@ -314,7 +314,7 @@ export function CampaignHero({
           </a>
           <a
             href="#dependencies"
-            className="inline-flex items-center gap-2 rounded-full border border-[--color-border] bg-[--color-bg-elevated]/60 px-5 py-2.5 font-medium text-[--color-ink-muted] backdrop-blur-sm transition hover:border-[--color-brand-border] hover:bg-[--color-brand-soft] hover:text-[--color-ink]"
+            className="brand-edge inline-flex items-center gap-2 rounded-full px-5 py-2.5 font-medium text-[--color-ink-muted] backdrop-blur-sm transition hover:text-[--color-ink]"
           >
             Track dependencies
           </a>

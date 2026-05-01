@@ -88,7 +88,7 @@ export function ContractView({
         />
         <CardBody className="@container">
           {/* Contract address bar */}
-          <div className="mb-4 flex items-center gap-3 rounded-xl border border-[--color-border] bg-[--color-bg-elevated]/60 p-3 sm:mb-5">
+          <div className="brand-edge mb-4 flex items-center gap-3 rounded-xl p-3 sm:mb-5">
             <div
               className="hidden size-9 shrink-0 items-center justify-center rounded-lg text-white sm:flex"
               style={{ background: 'linear-gradient(135deg, #8e5cff 0%, #e63e9d 100%)' }}
@@ -115,10 +115,10 @@ export function ContractView({
             {stats.map((stat, i) => {
               const Icon = stat.icon
               const toneBorder: Record<string, string> = {
-                brand: 'border-[--color-brand-border] bg-[--color-brand-soft]',
-                success: 'border-[--color-success-border] bg-[--color-success-soft]',
-                warning: 'border-[--color-warning-border] bg-[--color-warning-soft]',
-                neutral: 'border-[--color-border] bg-[--color-bg-elevated]/40',
+                brand: 'border border-[--color-brand-border] bg-[--color-brand-soft]',
+                success: 'border border-[--color-success-border] bg-[--color-success-soft]',
+                warning: 'border border-[--color-warning-border] bg-[--color-warning-soft]',
+                neutral: 'brand-edge',
               }
               const toneText: Record<string, string> = {
                 brand: 'text-[--color-brand-glow]',
@@ -134,7 +134,7 @@ export function ContractView({
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.3, delay: i * 0.05 }}
-                  className={`rounded-xl border p-3 transition-colors ${toneBorder[stat.tone]}`}
+                  className={`rounded-xl p-3 transition-colors ${toneBorder[stat.tone]}`}
                 >
                   <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-[--color-ink-soft]">
                     <Icon className="size-3 shrink-0" />
@@ -167,7 +167,7 @@ function ExplorerLink({ href, label }: { href: string; label: string }) {
       href={href}
       target="_blank"
       rel="noreferrer"
-      className="inline-flex items-center gap-1.5 rounded-lg border border-[--color-border] bg-[--color-bg-elevated]/60 px-3 py-2 text-xs font-medium text-[--color-ink-muted] transition-colors hover:border-[--color-brand-border] hover:bg-[--color-brand-soft] hover:text-[--color-brand-glow]"
+      className="brand-edge inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium text-[--color-ink-muted] transition-colors hover:text-[--color-brand-glow]"
     >
       {label}
       <ExternalLink className="size-3" />

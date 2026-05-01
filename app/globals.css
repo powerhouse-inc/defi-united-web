@@ -22,6 +22,19 @@
   --color-border-soft: #1a1d33;
   --color-border-strong: #2e3457;
 
+  /* Surface tokens — gradient fill for the canonical .glass surface and
+     a brand-gradient stroke that replaces flat grey borders. The combo
+     is what gives cards their soft purple→pink hairline. */
+  --surface-card-base: rgba(21, 23, 42, 0.78);
+  --surface-card-tail: rgba(15, 17, 33, 0.62);
+  --inset-highlight: rgba(255, 255, 255, 0.04);
+  --gradient-border-image: linear-gradient(
+    135deg,
+    rgba(142, 92, 255, 0.32),
+    rgba(230, 62, 157, 0.22) 70%,
+    rgba(142, 92, 255, 0.12)
+  );
+
   /* Aave V3-inspired: violet primary, magenta accent */
   --color-brand: #8e5cff;
   --color-brand-glow: #b284ff;
@@ -71,6 +84,18 @@
   --color-border: #e8e9f1;
   --color-border-soft: #f1f2f8;
   --color-border-strong: #d8dae6;
+
+  /* Light variant of the surface gradient + brand-stroke. The base/tail
+     are nearly white but the brand-gradient stroke still reads. */
+  --surface-card-base: rgba(255, 255, 255, 0.85);
+  --surface-card-tail: rgba(255, 255, 255, 0.65);
+  --inset-highlight: rgba(255, 255, 255, 0.7);
+  --gradient-border-image: linear-gradient(
+    135deg,
+    rgba(142, 92, 255, 0.32),
+    rgba(230, 62, 157, 0.22) 70%,
+    rgba(142, 92, 255, 0.12)
+  );
 
   --color-brand: #6936dc;
   --color-brand-glow: #8e5cff;
@@ -164,24 +189,43 @@ main, header, footer {
 }
 
 /* Glass surface — single canonical surface treatment for cards and
-   panels. Semi-translucent over the page background, soft hairline
-   border, gentle elevation shadow. */
+   panels. Two-layer background: gradient fill on padding-box, brand
+   gradient on border-box. Border itself is transparent — the gradient
+   shows through where the 1px ring lives. Replaces the old flat grey
+   hairline with a soft purple→pink stroke. */
 .glass {
-  background: var(--color-surface-glass);
+  background:
+    linear-gradient(180deg, var(--surface-card-base), var(--surface-card-tail))
+      padding-box,
+    var(--gradient-border-image) border-box;
+  border: 1px solid transparent;
   backdrop-filter: blur(12px) saturate(140%);
   -webkit-backdrop-filter: blur(12px) saturate(140%);
-  border: 1px solid var(--color-border);
   box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.04),
+    inset 0 1px 0 0 var(--inset-highlight),
     0 1px 0 0 rgba(0, 0, 0, 0.4),
     0 12px 40px -8px rgba(0, 0, 0, 0.5);
 }
 
 [data-theme='light'] .glass {
   box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.6),
+    inset 0 1px 0 0 var(--inset-highlight),
     0 1px 2px 0 rgba(15, 23, 42, 0.04),
-    0 8px 24px -10px rgba(15, 23, 42, 0.08);
+    0 12px 28px -14px rgba(105, 54, 220, 0.12);
+}
+
+/* Brand edge — inline utility for pills, chips, buttons, and inner
+   tiles that previously used `border border-[--color-border]`. Same
+   gradient stroke as .glass with the canonical translucent fill, so
+   the element doesn't need its own bg class. Replaces both
+   `border-[--color-border]` and `bg-[--color-bg-elevated]/X` in one
+   utility. */
+.brand-edge {
+  background:
+    linear-gradient(180deg, var(--surface-card-base), var(--surface-card-tail))
+      padding-box,
+    var(--gradient-border-image) border-box;
+  border: 1px solid transparent;
 }
 
 /* Brand glow utility — for the hero centerpiece */

@@ -111,7 +111,7 @@ export function ContributionAddressCard({
                 Treasury address
               </div>
               <div className="mt-2 flex items-center gap-2">
-                <code className="flex-1 truncate rounded-lg border border-[--color-border] bg-[--color-bg-elevated]/60 px-3 py-2.5 font-mono text-xs text-[--color-ink] sm:text-sm">
+                <code className="brand-edge flex-1 truncate rounded-lg px-3 py-2.5 font-mono text-xs text-[--color-ink] sm:text-sm">
                   {primary.address}
                 </code>
                 <CopyButton value={primary.address} label="Copy" />

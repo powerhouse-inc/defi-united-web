@@ -270,10 +270,10 @@ function TickerPill({
         initial={isFresh ? { opacity: 0, y: -6, scale: 0.95 } : false}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.4, ease: 'easeOut' }}
-        className={`group inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs ${
+        className={`group inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full px-3 py-1.5 text-xs ${
           isFresh
-            ? 'border-[--color-brand-border] bg-[--color-brand-soft]'
-            : 'border-[--color-border] bg-[--color-surface]/60'
+            ? 'border border-[--color-brand-border] bg-[--color-brand-soft]'
+            : 'brand-edge'
         }`}
       >
         <Icon
